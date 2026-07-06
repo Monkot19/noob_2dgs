@@ -202,6 +202,20 @@ python convert.py -s /root/autodl-tmp/datasets/my_scene --no_gpu
 
 CPU 模式会慢一些。
 
+如果图片尺寸不完全一致，例如有的图片是横屏、有的是竖屏，或者部分图片被裁剪过，默认单相机模式会报：
+
+```text
+Single camera specified, but images have different dimensions.
+```
+
+这时可以让 COLMAP 为每张图片单独估计相机内参：
+
+```bash
+python convert.py -s /root/autodl-tmp/datasets/my_scene --no_gpu --camera_per_image
+```
+
+更理想的做法是先把所有图片整理成相同分辨率和方向，再使用默认单相机模式。默认模式通常更适合来自同一台相机、同一焦距的一组图片。
+
 ## 9. 检查 COLMAP 转换是否成功
 
 转换完成后检查：
