@@ -15,6 +15,13 @@ Maintain and improve this fork of 2D Gaussian Splatting for local editing plus A
 - Main dataset: `/root/autodl-tmp/datasets/reception_hall_colmap`
 - Main output root: `/root/autodl-tmp/outputs`
 
+## Operating Convention
+
+- Use `planning-with-files` throughout this project.
+- At the start of future project work, read `task_plan.md`, `findings.md`, and `progress.md` before making decisions.
+- After new experiments, errors, code changes, or important conclusions, update the relevant planning files before finishing.
+- Keep project memory in root-level planning files; keep `.codex/` as local Codex tooling unless intentionally shared.
+
 ## Completed
 
 - Cloned upstream 2DGS into the local workspace.

@@ -51,6 +51,7 @@ The project is operational on AutoDL. The current focus is experiment management
 - Ran the skill's `session-catchup.py`; unsynced context only contained repeated interrupted requests to use the skill, with no new technical result beyond the existing planning files.
 - Re-read `task_plan.md`, `findings.md`, and `progress.md`; confirmed the project is already captured and Git diff is clean before this update.
 - Confirmed `.codex/` is local Codex tooling/configuration and should stay untracked for now.
+- User explicitly requested that this project use `planning-with-files` for all future work; recorded this as a project operating convention in `task_plan.md`.
 
 ## Latest Known Server Commands
 
