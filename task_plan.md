@@ -75,6 +75,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
   - preserving wall text and high-frequency visual details,
   - producing cleaner mesh output.
 - Framing the broader handheld-device-to-2DGS pipeline, including whether FastLIVO2 outputs can eventually replace or reduce the COLMAP dependency.
+- Diagnosing `reception_hall_balanced_v1`, which produced severe streaking/smearing in user-provided renders.
 
 ## Pipeline Directions
 
@@ -192,14 +193,14 @@ python render.py \
    cd /root/autodl-tmp/noob_2dgs
    git pull --ff-only
    ```
-2. Run or inspect `reception_hall_balanced_v1`.
+2. For `reception_hall_balanced_v1`, inspect training-camera renders before judging the model from `--render_path`.
 3. Compare:
    - rendered train views,
-   - trajectory video if `ffmpeg` is installed,
+   - rendered trajectory views if available,
    - visual amount of floaters,
    - wall text readability,
    - mesh cleanliness.
-4. If wall text remains degraded, run `reception_hall_detail_r1`.
-5. If floaters remain unacceptable, run `reception_hall_clean_v2`.
+4. If train views are acceptable but trajectory views are bad, debug/limit the render path instead of retraining first.
+5. If train views are also bad, run a more conservative detail-preserving or shorter-densification experiment.
 6. Record each experiment result in `progress.md`.
 7. If a code-level improvement becomes necessary, implement locally, commit, push, then update the server with `git pull --ff-only`.

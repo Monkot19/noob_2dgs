@@ -158,6 +158,33 @@ Interpretation:
 - High-frequency texture may be interpreted as geometry when regularization is too strong or resolution is too low.
 - A balanced run should lower geometry regularization and slightly relax densification pruning.
 
+Balanced run:
+
+```bash
+python train.py \
+  -s /root/autodl-tmp/datasets/reception_hall_colmap \
+  -m /root/autodl-tmp/outputs/reception_hall_balanced_v1 \
+  --depth_ratio 0 \
+  --lambda_normal 0.05 \
+  --lambda_dist 50 \
+  --opacity_cull 0.08 \
+  --densify_grad_threshold 0.0003
+```
+
+Observed from user screenshots:
+
+- Severe star-like streaks and stretched Gaussian splats.
+- Large black/uncovered regions around the rendered scene.
+- Walls and ceiling appear smeared into translucent sheets.
+- The sign text is still partly visible, suggesting some high-frequency appearance remains, but geometry/visibility is unstable.
+
+Interpretation:
+
+- First distinguish whether this is a bad model or a bad/free trajectory render.
+- If training-camera renders are acceptable but `--render_path` is bad, the path likely leaves the observed camera manifold or sees unobserved regions.
+- If training-camera renders are also bad, the problem is more likely training/data/COLMAP quality, scene normalization, or overly unstable Gaussian growth.
+- Do not continue tuning mesh parameters until plain train-view renders are inspected.
+
 ## Key Parameter Effects
 
 - `--lambda_dist`: reduces depth spread and floaters; too high can blur details or create geometry artifacts.

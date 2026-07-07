@@ -54,6 +54,7 @@ The project is operational on AutoDL. The current focus is experiment management
 - User explicitly requested that this project use `planning-with-files` for all future work; recorded this as a project operating convention in `task_plan.md`.
 - User clarified the broader project scope: deploy FastLIVO2 on a self-built handheld device, collect camera/LiDAR/synchronized data, transfer it into the local/server workflow, then run COLMAP or an equivalent pose/point-cloud stage, train 2DGS, and render/evaluate the reconstructed scene.
 - Recorded FastLIVO2-to-2DGS without COLMAP as a candidate research direction that may be useful if FastLIVO2 can provide 2DGS-compatible poses, intrinsics, and point cloud data.
+- User ran `reception_hall_balanced_v1` and provided screenshots showing severe star-like streaks, smeared walls/ceiling, black uncovered regions, and unstable geometry. The next diagnostic step is to inspect training-camera renders separately from `--render_path`.
 
 ## Latest Known Server Commands
 
@@ -129,8 +130,8 @@ python render.py \
 
 1. Keep using `task_plan.md`, `findings.md`, and `progress.md` as the persistent working memory for this project.
 2. Help define the target data contract for the handheld-device-to-2DGS pipeline.
-3. Ask the user for the latest result images, mesh screenshots, or metrics from `reception_hall_balanced_v1` once it has run.
-4. If artifacts persist, propose the next run based on observed failure:
+3. Ask the user to render/check training-camera views for `reception_hall_balanced_v1` before doing another full training run.
+4. If artifacts persist in train views, propose the next run based on observed failure:
    - floaters remain: increase cleanup.
    - text degraded: reduce regularization and use `-r 1`.
    - mesh fragmented: tune render `--num_cluster`, `--mesh_res`, and train cleanup parameters.
