@@ -75,7 +75,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
   - preserving wall text and high-frequency visual details,
   - producing cleaner mesh output.
 - Framing the broader handheld-device-to-2DGS pipeline, including whether FastLIVO2 outputs can eventually replace or reduce the COLMAP dependency.
-- Diagnosing `reception_hall_balanced_v1`, which produced severe streaking/smearing in user-provided renders.
+- Diagnosing `reception_hall_balanced_v1`; GT/render pairs show broadly correct alignment but excessive smoothing and loss of small text/detail.
 
 ## Pipeline Directions
 
@@ -136,6 +136,22 @@ python train.py \
   --densify_grad_threshold 0.00025
 ```
 
+### High-Resolution Low-Regularization Detail Test
+
+Use when train-view renders are aligned but over-smoothed, especially for small text, sign edges, and thin plant structures.
+
+```bash
+python train.py \
+  -s /root/autodl-tmp/datasets/reception_hall_colmap \
+  -m /root/autodl-tmp/outputs/reception_hall_detail_v2 \
+  -r 1 \
+  --depth_ratio 0 \
+  --lambda_normal 0.02 \
+  --lambda_dist 5 \
+  --opacity_cull 0.03 \
+  --densify_grad_threshold 0.00015
+```
+
 ### Strong Floater Cleanup
 
 Use only when floaters dominate and texture detail is less important.
@@ -193,14 +209,14 @@ python render.py \
    cd /root/autodl-tmp/noob_2dgs
    git pull --ff-only
    ```
-2. For `reception_hall_balanced_v1`, inspect training-camera renders before judging the model from `--render_path`.
-3. Compare:
-   - rendered train views,
-   - rendered trajectory views if available,
-   - visual amount of floaters,
-   - wall text readability,
-   - mesh cleanliness.
-4. If train views are acceptable but trajectory views are bad, debug/limit the render path instead of retraining first.
-5. If train views are also bad, run a more conservative detail-preserving or shorter-densification experiment.
+2. Run `reception_hall_detail_v2` to test whether high resolution, weaker regularization, lower culling, and more permissive densification recover small text/detail.
+3. Compare against `reception_hall_balanced_v1`:
+   - blue sign text and edges,
+   - fire cabinet text and box edges,
+   - plant leaf boundaries,
+   - wall smoothness,
+   - amount of floaters in monitor/free-view inspection.
+4. If detail improves but floaters return, add moderate cleanup rather than returning to `lambda_dist=50`.
+5. If detail does not improve, revisit image resolution, COLMAP camera quality, and possible training/render pipeline issues.
 6. Record each experiment result in `progress.md`.
 7. If a code-level improvement becomes necessary, implement locally, commit, push, then update the server with `git pull --ff-only`.

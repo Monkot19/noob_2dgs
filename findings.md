@@ -171,7 +171,7 @@ python train.py \
   --densify_grad_threshold 0.0003
 ```
 
-Observed from user screenshots:
+Observed from the first user screenshots:
 
 - Severe star-like streaks and stretched Gaussian splats.
 - Large black/uncovered regions around the rendered scene.
@@ -180,10 +180,25 @@ Observed from user screenshots:
 
 Interpretation:
 
-- First distinguish whether this is a bad model or a bad/free trajectory render.
-- If training-camera renders are acceptable but `--render_path` is bad, the path likely leaves the observed camera manifold or sees unobserved regions.
-- If training-camera renders are also bad, the problem is more likely training/data/COLMAP quality, scene normalization, or overly unstable Gaussian growth.
-- Do not continue tuning mesh parameters until plain train-view renders are inspected.
+- These first screenshots came from free-view movement in `2DGSmonitor`, not `render.py`.
+- Free-view monitor artifacts are useful for judging view-space robustness, but they should not be treated as the primary train-view quality metric.
+- The model should be evaluated first through GT/render pairs from training-camera renders.
+
+Observed from GT/render pairs for `reception_hall_balanced_v1`:
+
+- Camera alignment is broadly correct; the render sees the right wall/sign/plants/sofa/fire cabinet regions.
+- The reconstruction is not fully collapsed, but it is heavily over-smoothed.
+- Blue sign: text remains partly readable, but edges and sign boundaries are smeared.
+- Wall/sofa: wall is very smooth and sheet-like; sofa loses material detail.
+- Plants: global shape and color are acceptable, but leaf boundaries and fine structure are softened.
+- Fire cabinet: small text and hard edges are almost lost; this is the clearest failure case for detail preservation.
+
+Interpretation:
+
+- `lambda_dist=50` is still too strong for this scene when detail preservation matters.
+- `densify_grad_threshold=0.0003` is higher than the default `0.0002`, so it may suppress fine-detail Gaussian growth.
+- Default `-r -1` downscales images wider than 1.6K, which can hurt small text; using `-r 1` is important for evaluating text-heavy regions.
+- The next experiment should prioritize high-resolution, lower geometry regularization, and more permissive densification.
 
 ## Key Parameter Effects
 
