@@ -52,6 +52,8 @@ The project is operational on AutoDL. The current focus is experiment management
 - Re-read `task_plan.md`, `findings.md`, and `progress.md`; confirmed the project is already captured and Git diff is clean before this update.
 - Confirmed `.codex/` is local Codex tooling/configuration and should stay untracked for now.
 - User explicitly requested that this project use `planning-with-files` for all future work; recorded this as a project operating convention in `task_plan.md`.
+- User clarified the broader project scope: deploy FastLIVO2 on a self-built handheld device, collect camera/LiDAR/synchronized data, transfer it into the local/server workflow, then run COLMAP or an equivalent pose/point-cloud stage, train 2DGS, and render/evaluate the reconstructed scene.
+- Recorded FastLIVO2-to-2DGS without COLMAP as a candidate research direction that may be useful if FastLIVO2 can provide 2DGS-compatible poses, intrinsics, and point cloud data.
 
 ## Latest Known Server Commands
 
@@ -120,13 +122,16 @@ python render.py \
 - Should the server use a custom COLMAP 3.9.1 CUDA build permanently?
 - Should `ffmpeg`, `dash==2.14.2`, and `comm==0.1.4` be added to a server setup note or install script?
 - Should future experiments save screenshots/renders into a structured comparison directory?
+- What exact data products will the handheld device export: images only, image timestamps, LiDAR scans, IMU, calibrated camera-LiDAR extrinsics, FastLIVO2 trajectory, colored point cloud?
+- Can FastLIVO2 outputs be converted into COLMAP-compatible `sparse/0` files for direct 2DGS training?
 
 ## Next Assistant Actions
 
 1. Keep using `task_plan.md`, `findings.md`, and `progress.md` as the persistent working memory for this project.
-2. Ask the user for the latest result images, mesh screenshots, or metrics from `reception_hall_balanced_v1` once it has run.
-3. If artifacts persist, propose the next run based on observed failure:
+2. Help define the target data contract for the handheld-device-to-2DGS pipeline.
+3. Ask the user for the latest result images, mesh screenshots, or metrics from `reception_hall_balanced_v1` once it has run.
+4. If artifacts persist, propose the next run based on observed failure:
    - floaters remain: increase cleanup.
    - text degraded: reduce regularization and use `-r 1`.
    - mesh fragmented: tune render `--num_cluster`, `--mesh_res`, and train cleanup parameters.
-4. After every new server experiment or code change, update `progress.md`; if the result changes what we believe, also update `findings.md` and `task_plan.md`.
+5. After every new server experiment or code change, update `progress.md`; if the result changes what we believe, also update `findings.md` and `task_plan.md`.

@@ -4,7 +4,18 @@ Last updated: 2026-07-07
 
 ## Goal
 
-Maintain and improve this fork of 2D Gaussian Splatting for local editing plus AutoDL server execution. The immediate technical goal is to obtain a cleaner reconstruction for `reception_hall`, especially reducing floating Gaussians and wall artifacts while preserving wall text/detail.
+Maintain and improve this fork of 2D Gaussian Splatting for local editing plus AutoDL server execution.
+
+The overall project goal is to convert data captured by a self-built handheld mapping device into high-quality 2DGS reconstructed scenes. The handheld device includes camera, LiDAR, synchronizer, industrial computer, and related acquisition hardware. The expected project pipeline is:
+
+1. Deploy and run FastLIVO2 on the handheld device.
+2. Capture synchronized image/LiDAR data with the device.
+3. Transfer the captured data to the local/server workflow.
+4. Run COLMAP or an equivalent pose/point-cloud preparation stage.
+5. Train 2DGS.
+6. Render 2DGS outputs and evaluate reconstructed scene quality.
+
+The immediate technical goal is to obtain a cleaner reconstruction for `reception_hall`, especially reducing floating Gaussians and wall artifacts while preserving wall text/detail.
 
 ## Current Project State
 
@@ -63,6 +74,33 @@ Maintain and improve this fork of 2D Gaussian Splatting for local editing plus A
   - keeping walls flat,
   - preserving wall text and high-frequency visual details,
   - producing cleaner mesh output.
+- Framing the broader handheld-device-to-2DGS pipeline, including whether FastLIVO2 outputs can eventually replace or reduce the COLMAP dependency.
+
+## Pipeline Directions
+
+### Current Mainline: Images to COLMAP to 2DGS
+
+Use this path as the stable baseline:
+
+1. Device captures image sequence.
+2. Images are organized into a 2DGS/COLMAP-compatible dataset.
+3. COLMAP estimates camera poses and sparse points.
+4. 2DGS trains from COLMAP output.
+5. Rendering and mesh extraction evaluate final quality.
+
+This path is already partially validated through `reception_hall_colmap`.
+
+### Candidate Direction: FastLIVO2 to 2DGS Without COLMAP
+
+Investigate whether FastLIVO2 can provide outputs that satisfy 2DGS training requirements directly or after conversion:
+
+- camera poses/extrinsics per image,
+- camera intrinsics,
+- image timestamps and synchronization,
+- sparse or dense colored point cloud,
+- coordinate frame alignment between LiDAR, camera, and world.
+
+This direction could reduce COLMAP cost/failure modes, especially for weak-texture indoor scenes, but it needs careful validation because 2DGS expects COLMAP-like camera models, poses, and scene normalization.
 
 ## Planned Experiments
 

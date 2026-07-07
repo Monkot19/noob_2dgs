@@ -16,6 +16,19 @@ Last updated: 2026-07-07
 - Persistent planning files are stored in the project root, not in the skill directory.
 - `.codex/` is local Codex tooling/configuration and should remain untracked unless there is a deliberate reason to share it.
 
+## Project Scope
+
+- The user's broader project is a handheld-device-to-2DGS reconstruction pipeline.
+- The handheld device is self-assembled and includes camera, LiDAR, synchronizer, industrial computer, and related acquisition components.
+- FastLIVO2 is planned for deployment on the handheld device.
+- The user's core responsibility is downstream data handling and reconstruction:
+  - obtain captured data,
+  - run COLMAP or an equivalent preparation stage,
+  - train 2DGS,
+  - render/evaluate reconstructed 2DGS scenes.
+- A successful project means converting data from the handheld device into high-quality 2DGS reconstructed scenes.
+- Possible future direction: use FastLIVO2 outputs to skip COLMAP if they can provide 2DGS-compatible camera poses, intrinsics, and point cloud data.
+
 ## Local Environment
 
 - Local Windows machine has an NVIDIA GPU, but the local CUDA/PyTorch environment was not made the primary runtime.
@@ -64,6 +77,20 @@ COLMAP 3.6 ... without CUDA
 ```bash
 -DCMAKE_CUDA_ARCHITECTURES=89
 ```
+
+## FastLIVO2 as a Possible COLMAP Alternative
+
+- Treat FastLIVO2-to-2DGS as a research/engineering branch, not yet the default path.
+- Key validation questions:
+  - Can FastLIVO2 output per-image camera poses in a stable world frame?
+  - Are camera intrinsics and distortion parameters available in a form convertible to COLMAP/2DGS?
+  - Are image timestamps matched cleanly to LiDAR/IMU poses?
+  - Is the point cloud coordinate frame compatible with the camera poses?
+  - Does 2DGS need a COLMAP-format `sparse/0` directory, or can we write a converter to produce equivalent `cameras`, `images`, and `points3D` files?
+- Potential benefit:
+  - Lower dependence on image-only feature matching, which can struggle on weak/repetitive indoor walls.
+- Potential risk:
+  - Pose/frame convention mistakes can create worse artifacts than COLMAP, even if the LiDAR SLAM trajectory itself looks good.
 
 ## Dataset: reception_hall_colmap
 
