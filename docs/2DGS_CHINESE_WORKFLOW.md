@@ -312,6 +312,793 @@ cd /root/autodl-tmp/noob_2dgs
 python render.py -s /root/autodl-tmp/datasets/my_scene -m /root/autodl-tmp/outputs/my_scene
 ```
 
+## 17. train.py 参数详解
+
+本节只解释日常最常用、最影响结果的参数。默认参数定义在 `arguments/__init__.py`，训练主逻辑在 `train.py`。
+
+### 17.1 数据与输出
+
+`-s` / `--source_path`
+
+数据集路径。必须指向已经完成 COLMAP 转换的数据集目录，目录里至少应有：
+
+```text
+images/
+sparse/0/
+```
+
+例子：
+
+```bash
+-s /root/autodl-tmp/datasets/reception_hall_colmap
+```
+
+`-m` / `--model_path`
+
+模型输出路径。建议每次实验用不同目录，不要覆盖旧结果：
+
+```bash
+-m /root/autodl-tmp/outputs/reception_hall_balanced_v1
+```
+
+输出目录中常见内容：
+
+```text
+cfg_args                  # 本次训练参数记录
+point_cloud/              # 保存的高斯点云
+events.out...             # TensorBoard 日志
+chkpnt*.pth               # checkpoint，只有指定 checkpoint_iterations 才有
+```
+
+`--images`
+
+指定读取的图片目录名，默认是 `images`。一般不要改。只有当你手动准备了 `images_2`、`images_4` 等目录并希望直接训练它们时才需要改。
+
+### 17.2 分辨率与显存
+
+`-r` / `--resolution`
+
+控制训练读入图片的分辨率。
+
+默认 `-1`：如果图片宽度超过约 1600 像素，会自动缩到约 1600。适合大多数场景。
+
+`-r 1`：使用原始分辨率。细节更好，例如墙上文字、小标识、纹理，但显存和时间开销更大。
+
+`-r 2`：使用 1/2 分辨率。更省显存、更快，适合快速试验或显存不足。
+
+`-r 4`：使用 1/4 分辨率。只建议用于快速检查流程，不适合最终效果。
+
+推荐：
+
+```bash
+# 快速试跑
+-r 2
+
+# 正式训练，保留小字和细节
+-r 1
+
+# 默认稳妥
+不写 -r
+```
+
+### 17.3 训练步数与保存
+
+`--iterations`
+
+训练总步数，默认 `30000`。
+
+推荐：
+
+```bash
+# 快速看趋势
+--iterations 7000
+
+# 常规正式训练
+--iterations 30000
+
+# 复杂室内、大场景、细节多
+--iterations 40000
+```
+
+步数更多不一定更好。如果正则不合适，训练更久可能只是把错误几何训练得更明显。
+
+`--save_iterations`
+
+保存高斯结果的迭代点，默认保存 `7000` 和 `30000`，代码还会自动追加最终 `iterations`。
+
+```bash
+--save_iterations 10000 20000 30000
+```
+
+`--test_iterations`
+
+在哪些迭代点做测试集评估，默认 `7000 30000`。如果只关心最终结果，可以：
+
+```bash
+--test_iterations 30000
+```
+
+`--checkpoint_iterations`
+
+保存可恢复训练的 checkpoint。注意 checkpoint 和普通保存的高斯点云不同，checkpoint 用于断点续训。
+
+```bash
+--checkpoint_iterations 10000 20000 30000
+```
+
+`--start_checkpoint`
+
+从 checkpoint 恢复训练：
+
+```bash
+--start_checkpoint /root/autodl-tmp/outputs/my_scene/chkpnt20000.pth
+```
+
+### 17.4 几何正则相关参数
+
+`--depth_ratio`
+
+控制渲染深度的统计方式，默认 `0.0`。
+
+`--depth_ratio 0`：使用 mean depth。适合大多数室内、室外、大场景、深度跨度大的场景。大厅、走廊、房间、街景通常先用这个。
+
+`--depth_ratio 1`：使用 median depth。适合前景物体明确、边界干净、类似 DTU 扫描物体的数据。
+
+经验：
+
+```bash
+# 室内大厅、走廊、办公室、室外
+--depth_ratio 0
+
+# 单个物体、桌面物体、边界明确的扫描
+--depth_ratio 1
+```
+
+`--lambda_normal`
+
+法线一致性正则，默认 `0.05`，训练到 7000 步之后才生效。它会让表面更平滑、更像连续面。
+
+调大后：
+
+- 墙面、地面更平。
+- mesh 通常更干净。
+- 但墙上的字、小纹理、细薄结构可能被抹平，甚至被解释成异常几何突起。
+
+推荐范围：
+
+```bash
+# 保细节
+--lambda_normal 0.01
+--lambda_normal 0.03
+
+# 默认稳妥
+--lambda_normal 0.05
+
+# 更重视几何平整
+--lambda_normal 0.1
+```
+
+`--lambda_dist`
+
+深度 distortion 正则，默认 `0.0`，训练到 3000 步之后才生效。它常用于压制空间中的漂浮高斯和沿视线方向散开的高斯。
+
+调大后：
+
+- floaters 通常会减少。
+- 空间更干净。
+- 但纹理细节可能变糊，小字可能不清楚。
+- 过大时几何可能收缩或墙面出现不自然突起。
+
+推荐范围：
+
+```bash
+# 保纹理，轻度约束
+--lambda_dist 10
+
+# 平衡 floaters 与细节
+--lambda_dist 50
+
+# 明显压制漂浮高斯
+--lambda_dist 100
+
+# 强压制，只在 floaters 很严重时试
+--lambda_dist 1000
+```
+
+### 17.5 高斯增殖与剪枝
+
+`--densify_from_iter`
+
+从第几步开始增殖高斯，默认 `500`。一般不改。
+
+`--densify_until_iter`
+
+到第几步停止增殖高斯，默认 `15000`。
+
+调小后：
+
+- 高斯数量更少。
+- 空间更干净。
+- 但细节可能不足。
+
+推荐：
+
+```bash
+# 默认
+--densify_until_iter 15000
+
+# floaters 多，想让模型少长一些高斯
+--densify_until_iter 12000
+
+# 细节很多，想给模型更多增长空间
+--densify_until_iter 18000
+```
+
+`--densification_interval`
+
+每隔多少步做一次增殖/剪枝，默认 `100`。一般不改。
+
+`--densify_grad_threshold`
+
+控制哪些区域会长出新高斯，默认 `0.0002`。
+
+调大后：
+
+- 更难长出新高斯。
+- floaters 可能减少。
+- 细节可能变少，小字、细线、边缘更容易糊。
+
+调小后：
+
+- 更容易长出高斯。
+- 细节可能更多。
+- 但空间可能更乱。
+
+推荐：
+
+```bash
+# 保细节
+--densify_grad_threshold 0.00025
+--densify_grad_threshold 0.0003
+
+# 默认
+--densify_grad_threshold 0.0002
+
+# 压制杂乱高斯
+--densify_grad_threshold 0.0004
+--densify_grad_threshold 0.0005
+```
+
+`--opacity_cull`
+
+剪掉低 opacity 高斯的阈值，默认 `0.05`。
+
+调大后：
+
+- 更积极删除弱贡献高斯。
+- 空间更干净。
+- 但细节和半透明/细薄结构可能损失。
+
+推荐：
+
+```bash
+# 保守剪枝
+--opacity_cull 0.05
+
+# 稍微清理 floaters
+--opacity_cull 0.08
+
+# 更强清理
+--opacity_cull 0.1
+--opacity_cull 0.15
+```
+
+`--opacity_reset_interval`
+
+每隔多少步重置 opacity，默认 `3000`。一般不改。
+
+### 17.6 外观与优化参数
+
+`--lambda_dssim`
+
+L1 和 SSIM 图像损失之间的权重，默认 `0.2`。一般不改。
+
+调大后更重视结构相似性，调小后更重视逐像素颜色。多数场景默认即可。
+
+`--sh_degree`
+
+球谐颜色阶数，默认 `3`。控制视角相关颜色表达能力。一般不改。
+
+`--white_background`
+
+白色背景。适合物体数据集或白底合成数据。真实室内/室外 COLMAP 数据通常不要加。
+
+`--eval`
+
+开启训练/测试集划分。想看 PSNR 等测试指标时可以加。图片数量不多、希望所有图都参与训练时不要加。
+
+`--data_device`
+
+默认 `cuda`。一般不改。
+
+`--position_lr_init`、`--position_lr_final`、`--feature_lr`、`--opacity_lr`、`--scaling_lr`、`--rotation_lr`
+
+这些是不同参数组的学习率。除非你明确知道要改什么，否则不建议动。调几何问题时，优先调 `lambda_dist`、`lambda_normal`、`opacity_cull`、`densify_grad_threshold`。
+
+## 18. train.py 典型场景配置
+
+### 18.1 快速验证流程
+
+适合刚转换完数据，想确认能不能训练。
+
+```bash
+python train.py \
+  -s /root/autodl-tmp/datasets/my_scene \
+  -m /root/autodl-tmp/outputs/my_scene_test \
+  -r 2 \
+  --iterations 7000
+```
+
+### 18.2 室内大厅、走廊、办公室
+
+适合 `reception_hall` 这类场景。先用平衡配置：
+
+```bash
+python train.py \
+  -s /root/autodl-tmp/datasets/reception_hall_colmap \
+  -m /root/autodl-tmp/outputs/reception_hall_balanced_v1 \
+  --depth_ratio 0 \
+  --lambda_normal 0.05 \
+  --lambda_dist 50 \
+  --opacity_cull 0.08 \
+  --densify_grad_threshold 0.0003
+```
+
+如果空间中漂浮高斯仍然多：
+
+```bash
+--lambda_dist 100
+--opacity_cull 0.1
+--densify_grad_threshold 0.0004
+```
+
+如果墙上文字、标识、纹理变糊或变成突起：
+
+```bash
+--lambda_normal 0.03
+--lambda_dist 10
+--densify_grad_threshold 0.00025
+-r 1
+```
+
+### 18.3 墙面文字、小标识、纹理细节很重要
+
+优先保细节：
+
+```bash
+python train.py \
+  -s /root/autodl-tmp/datasets/my_scene \
+  -m /root/autodl-tmp/outputs/my_scene_detail_v1 \
+  -r 1 \
+  --depth_ratio 0 \
+  --lambda_normal 0.03 \
+  --lambda_dist 10 \
+  --opacity_cull 0.08 \
+  --densify_grad_threshold 0.00025
+```
+
+如果显存不够，把 `-r 1` 去掉，让它自动缩到约 1600 宽。
+
+### 18.4 漂浮高斯很多，空间很乱
+
+偏向清理 floaters：
+
+```bash
+python train.py \
+  -s /root/autodl-tmp/datasets/my_scene \
+  -m /root/autodl-tmp/outputs/my_scene_clean_v1 \
+  --depth_ratio 0 \
+  --lambda_normal 0.1 \
+  --lambda_dist 100 \
+  --opacity_cull 0.1 \
+  --densify_grad_threshold 0.0004 \
+  --densify_until_iter 12000
+```
+
+如果清理后细节损失明显，优先把 `lambda_normal` 降到 `0.05`，再把 `lambda_dist` 降到 `50`。
+
+### 18.5 单个物体、桌面物体、边界明确
+
+类似 DTU 或小物体环绕拍摄：
+
+```bash
+python train.py \
+  -s /root/autodl-tmp/datasets/object_scene \
+  -m /root/autodl-tmp/outputs/object_scene_v1 \
+  -r 2 \
+  --depth_ratio 1 \
+  --lambda_normal 0.05 \
+  --lambda_dist 10
+```
+
+如果背景干净、希望 mesh 更平滑，可以试：
+
+```bash
+--lambda_normal 0.1
+--lambda_dist 50
+```
+
+### 18.6 室外或无界大场景
+
+室外、大空间、深度跨度大：
+
+```bash
+python train.py \
+  -s /root/autodl-tmp/datasets/outdoor_scene \
+  -m /root/autodl-tmp/outputs/outdoor_scene_v1 \
+  --depth_ratio 0 \
+  --lambda_normal 0.05 \
+  --lambda_dist 10
+```
+
+如果远处漂浮物明显，再增加：
+
+```bash
+--lambda_dist 50
+```
+
+### 18.7 显存不足
+
+优先按这个顺序降压力：
+
+```bash
+# 1. 降分辨率
+-r 2
+
+# 2. 减少训练步数做试验
+--iterations 7000
+
+# 3. 停止更早增殖
+--densify_until_iter 12000
+
+# 4. 提高增殖门槛
+--densify_grad_threshold 0.0004
+```
+
+## 19. render.py 参数详解
+
+`render.py` 既可以导出训练/测试视角渲染图，也可以生成轨迹视频，还可以融合网格。
+
+基础命令：
+
+```bash
+python render.py \
+  -s /root/autodl-tmp/datasets/my_scene \
+  -m /root/autodl-tmp/outputs/my_scene
+```
+
+### 19.1 输入输出参数
+
+`-s` / `--source_path`
+
+数据集路径。建议渲染时也明确写上，避免只靠 `cfg_args`。
+
+`-m` / `--model_path`
+
+训练输出路径。
+
+`--iteration`
+
+指定加载哪一次保存的模型。默认 `-1`，加载最新一次。
+
+```bash
+--iteration 30000
+```
+
+### 19.2 控制导出内容
+
+`--skip_train`
+
+不导出训练视角渲染。
+
+`--skip_test`
+
+不导出测试视角渲染。
+
+`--skip_mesh`
+
+不导出 mesh。只想看渲染图或视频时建议加上，可以省很多时间。
+
+`--render_path`
+
+生成一条相机轨迹并导出视频。需要系统安装 `ffmpeg`：
+
+```bash
+apt update
+apt install -y ffmpeg
+```
+
+如果只想先验证模型质量：
+
+```bash
+python render.py \
+  -s /root/autodl-tmp/datasets/my_scene \
+  -m /root/autodl-tmp/outputs/my_scene \
+  --skip_mesh
+```
+
+如果只想导出视频：
+
+```bash
+python render.py \
+  -s /root/autodl-tmp/datasets/my_scene \
+  -m /root/autodl-tmp/outputs/my_scene \
+  --render_path \
+  --skip_train \
+  --skip_test \
+  --skip_mesh
+```
+
+### 19.3 有界 mesh 参数
+
+默认不加 `--unbounded` 时使用有界 TSDF 融合。
+
+`--mesh_res`
+
+有界模式下，如果没有手动指定 `voxel_size`，代码会用：
+
+```text
+voxel_size = depth_trunc / mesh_res
+```
+
+因此 `mesh_res` 越大，网格越细，越耗显存和时间。
+
+`--depth_trunc`
+
+TSDF 融合时保留的最大深度范围。日志里会提示类似：
+
+```text
+Use at least 4.92 for depth_trunc
+```
+
+如果 mesh 断裂、远处缺失，可以调大：
+
+```bash
+--depth_trunc 5.0
+```
+
+如果远处噪声很多，可以调小。
+
+`--voxel_size`
+
+体素大小。越小 mesh 越细，但更慢更吃显存。室内场景可试：
+
+```bash
+--voxel_size 0.01
+--voxel_size 0.005
+```
+
+`--sdf_trunc`
+
+TSDF 截断距离。默认是 `5 * voxel_size`。一般不改。
+
+`--num_cluster`
+
+mesh 后处理保留的连通块数量，默认 `50`。
+
+调小可以删除更多孤立碎片：
+
+```bash
+--num_cluster 10
+--num_cluster 20
+```
+
+如果场景本来有很多分离物体，调太小会误删。
+
+### 19.4 无界 mesh 参数
+
+`--unbounded`
+
+使用无界 mesh 提取，适合室外、大空间、边界不明确场景，也适合大厅这种范围较大的室内空间。
+
+`--mesh_res`
+
+无界模式下控制网格分辨率：
+
+```bash
+--mesh_res 512     # 快速、粗糙、省显存
+--mesh_res 1024    # 常用
+--mesh_res 2048    # 更细，开销大
+```
+
+室内大厅建议先试：
+
+```bash
+python render.py \
+  -s /root/autodl-tmp/datasets/reception_hall_colmap \
+  -m /root/autodl-tmp/outputs/reception_hall_balanced_v1 \
+  --unbounded \
+  --skip_train \
+  --skip_test \
+  --mesh_res 1024 \
+  --num_cluster 20
+```
+
+### 19.5 render.py 典型命令
+
+只导出训练视角和测试视角图片，不导 mesh：
+
+```bash
+python render.py -s /root/autodl-tmp/datasets/my_scene -m /root/autodl-tmp/outputs/my_scene --skip_mesh
+```
+
+只导视频：
+
+```bash
+python render.py -s /root/autodl-tmp/datasets/my_scene -m /root/autodl-tmp/outputs/my_scene --render_path --skip_train --skip_test --skip_mesh
+```
+
+导出无界 mesh：
+
+```bash
+python render.py -s /root/autodl-tmp/datasets/my_scene -m /root/autodl-tmp/outputs/my_scene --unbounded --skip_train --skip_test --mesh_res 1024 --num_cluster 20
+```
+
+导出有界 mesh：
+
+```bash
+python render.py -s /root/autodl-tmp/datasets/my_scene -m /root/autodl-tmp/outputs/my_scene --skip_train --skip_test --mesh_res 1024 --depth_trunc 5.0 --num_cluster 20
+```
+
+## 20. 常见现象与调参方向
+
+### 20.1 空间里有很多彩色漂浮高斯
+
+优先尝试：
+
+```bash
+--lambda_dist 50 或 100
+--opacity_cull 0.08 或 0.1
+--densify_grad_threshold 0.0003 或 0.0004
+```
+
+如果仍然多，再试：
+
+```bash
+--densify_until_iter 12000
+--lambda_normal 0.1
+```
+
+### 20.2 墙面更平了，但墙上文字看不清
+
+说明几何正则或剪枝太强。优先尝试：
+
+```bash
+--lambda_normal 0.03
+--lambda_dist 10
+--densify_grad_threshold 0.00025
+-r 1
+```
+
+### 20.3 墙上文字变成异常突起
+
+常见于模型把高频纹理当成几何。尝试降低几何正则：
+
+```bash
+--lambda_normal 0.03
+--lambda_dist 10 或 50
+```
+
+同时用 `-r 1` 保留原图细节，让模型更容易用颜色解释文字，而不是用几何解释文字。
+
+### 20.4 mesh 碎片很多
+
+渲染 mesh 时调：
+
+```bash
+--num_cluster 10
+--num_cluster 20
+```
+
+训练时调：
+
+```bash
+--opacity_cull 0.1
+--lambda_dist 50
+```
+
+### 20.5 渲染图清楚，但点云看起来乱
+
+这是正常现象的一部分。2DGS/3DGS 的高斯点云不是传统 SfM 点云，里面会有一些服务于渲染的高斯。判断结果时优先看：
+
+- novel view 渲染图
+- depth / normal
+- mesh 后处理结果
+
+不要只用裸 ply 点云的干净程度判断模型是否失败。
+
+## 21. 上下文用完后如何迁移到新对话
+
+如果这个对话的上下文快用完，或者你想开一个新项目继续，建议按下面方式迁移。
+
+### 21.1 最重要的原则
+
+代码和文档已经在 GitHub 仓库里，这是最可靠的“长期记忆”：
+
+```text
+https://github.com/Monkot19/noob_2dgs.git
+```
+
+新对话里只要告诉我仓库地址、服务器路径、当前问题，我就能继续。
+
+### 21.2 新对话开头建议直接贴这段
+
+```text
+我们之前在做 2D Gaussian Splatting 项目，仓库是：
+https://github.com/Monkot19/noob_2dgs.git
+
+本地路径：
+D:\workspace\2DGS
+
+AutoDL 服务器路径：
+/root/autodl-tmp/noob_2dgs
+
+数据集：
+/root/autodl-tmp/datasets/reception_hall_colmap
+
+主要输出：
+/root/autodl-tmp/outputs/
+
+当前环境：
+AutoDL Ubuntu，PyTorch 2.0.0+cu118，CUDA 11.8，RTX 3090。
+diff_surfel_rasterization 和 simple_knn 已安装成功。
+
+COLMAP：
+系统自带 /usr/bin/colmap 是 3.6 without CUDA；
+后来参考旧记录编译/使用过 COLMAP 3.9.1 with CUDA 的方案。
+
+当前已完成：
+1. GitHub fork/自有仓库已建立。
+2. 子模块已初始化。
+3. reception_hall 图片已通过 COLMAP 转换，129 张图注册成功，9715 points，mean reprojection error 约 0.96px。
+4. 可以训练和渲染。
+5. 当前主要问题是训练结果中有漂浮高斯、墙面文字和几何正则之间需要调参平衡。
+
+请先读取 docs/2DGS_CHINESE_WORKFLOW.md，然后接着帮我处理当前问题。
+```
+
+### 21.3 每次服务器报错时建议提供
+
+```bash
+cd /root/autodl-tmp/noob_2dgs
+git rev-parse HEAD
+git status --short
+```
+
+同时贴：
+
+- 你执行的完整命令
+- 完整报错
+- 当前使用的数据集路径
+- 当前输出目录
+- 你想改善的具体现象，例如 floaters、多余突起、文字不清、mesh 破碎
+
+### 21.4 如何让新对话拿到最新代码
+
+服务器上：
+
+```bash
+cd /root/autodl-tmp/noob_2dgs
+git pull --ff-only
+git submodule update --init --recursive
+```
+
+本地新环境中：
+
+```bash
+git clone --recursive https://github.com/Monkot19/noob_2dgs.git
+```
+
 如果只想渲染，不重新处理训练集或测试集，可以根据需要加：
 
 ```bash
