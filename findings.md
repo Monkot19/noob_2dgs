@@ -12,6 +12,9 @@ Last updated: 2026-07-07
   2. Commit and push to GitHub.
   3. Pull on AutoDL server.
   4. Run training/rendering on AutoDL.
+- Project-local planning skill is installed at `.codex/skills/planning-with-files/`.
+- Persistent planning files are stored in the project root, not in the skill directory.
+- `.codex/` is local Codex tooling/configuration and should remain untracked unless there is a deliberate reason to share it.
 
 ## Local Environment
 

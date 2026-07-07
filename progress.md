@@ -47,6 +47,10 @@ The project is operational on AutoDL. The current focus is experiment management
   - `task_plan.md`
   - `findings.md`
   - `progress.md`
+- Explicitly loaded the project-local `planning-with-files` skill from `.codex/skills/planning-with-files/SKILL.md`.
+- Ran the skill's `session-catchup.py`; unsynced context only contained repeated interrupted requests to use the skill, with no new technical result beyond the existing planning files.
+- Re-read `task_plan.md`, `findings.md`, and `progress.md`; confirmed the project is already captured and Git diff is clean before this update.
+- Confirmed `.codex/` is local Codex tooling/configuration and should stay untracked for now.
 
 ## Latest Known Server Commands
 
@@ -118,9 +122,10 @@ python render.py \
 
 ## Next Assistant Actions
 
-1. Commit and push these planning files.
-2. Ask the user for the latest result images or metrics from `balanced_v1`.
+1. Keep using `task_plan.md`, `findings.md`, and `progress.md` as the persistent working memory for this project.
+2. Ask the user for the latest result images, mesh screenshots, or metrics from `reception_hall_balanced_v1` once it has run.
 3. If artifacts persist, propose the next run based on observed failure:
    - floaters remain: increase cleanup.
    - text degraded: reduce regularization and use `-r 1`.
    - mesh fragmented: tune render `--num_cluster`, `--mesh_res`, and train cleanup parameters.
+4. After every new server experiment or code change, update `progress.md`; if the result changes what we believe, also update `findings.md` and `task_plan.md`.

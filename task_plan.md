@@ -42,6 +42,11 @@ Maintain and improve this fork of 2D Gaussian Splatting for local editing plus A
   - Mean reprojection error about 0.96 px.
 - Rendering reached image/video export; missing `ffmpeg` was identified as the blocker for MP4 video writing.
 - Expanded Chinese workflow documentation with train/render parameter guide and context migration instructions.
+- Created and committed persistent planning files:
+  - `task_plan.md`
+  - `findings.md`
+  - `progress.md`
+- Loaded the project-local `planning-with-files` skill and confirmed existing planning files are the active project memory.
 
 ## In Progress
 
@@ -137,14 +142,19 @@ python render.py \
 
 ## Next Steps
 
-1. Run `reception_hall_balanced_v1`.
-2. Compare:
+1. Pull the latest repository state on AutoDL if needed:
+   ```bash
+   cd /root/autodl-tmp/noob_2dgs
+   git pull --ff-only
+   ```
+2. Run or inspect `reception_hall_balanced_v1`.
+3. Compare:
    - rendered train views,
    - trajectory video if `ffmpeg` is installed,
    - visual amount of floaters,
    - wall text readability,
    - mesh cleanliness.
-3. If wall text remains degraded, run `reception_hall_detail_r1`.
-4. If floaters remain unacceptable, run `reception_hall_clean_v2`.
-5. Record each experiment result in `progress.md`.
-6. If a code-level improvement becomes necessary, implement locally, commit, push, then update the server with `git pull --ff-only`.
+4. If wall text remains degraded, run `reception_hall_detail_r1`.
+5. If floaters remain unacceptable, run `reception_hall_clean_v2`.
+6. Record each experiment result in `progress.md`.
+7. If a code-level improvement becomes necessary, implement locally, commit, push, then update the server with `git pull --ff-only`.
