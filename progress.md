@@ -58,6 +58,8 @@ The project is operational on AutoDL. The current focus is experiment management
 - User provided four GT/render pairs for `reception_hall_balanced_v1`: blue sign, wall/sofa, plants, and fire cabinet.
 - Observation: training-camera alignment is broadly correct, but the render is over-smoothed. Blue sign text is partly readable, plants preserve rough color/shape, but wall/sofa material detail and fire cabinet text/hard edges are heavily lost.
 - Next experiment should prioritize detail recovery with `-r 1`, weaker `lambda_dist`, lower `opacity_cull`, and lower `densify_grad_threshold`.
+- User clarified that monitor/free-view inspection shows wall protrusions from other viewpoints; the issue is not only over-smoothing in train-view renders.
+- Revised diagnosis: the current dataset/model may be novel-view geometry limited. A reshoot is a serious option if final scene quality is the goal.
 
 ## Latest Known Server Commands
 
@@ -134,6 +136,6 @@ python render.py \
 1. Keep using `task_plan.md`, `findings.md`, and `progress.md` as the persistent working memory for this project.
 2. Help define the target data contract for the handheld-device-to-2DGS pipeline.
 3. Ask the user to run `reception_hall_detail_v2` and compare it against `reception_hall_balanced_v1`.
-4. If detail improves but floaters return, add moderate cleanup without returning to very high `lambda_dist`.
-5. If detail does not improve, inspect resolution/downsampling, COLMAP pose quality, and train/render pipeline assumptions.
+4. If user chooses not to reshoot yet, use `reception_hall_detail_v2` as one last diagnostic to separate parameter issues from capture issues.
+5. If free-view wall protrusions persist, help design a better capture protocol and benchmark the new dataset against the old one.
 6. After every new server experiment or code change, update `progress.md`; if the result changes what we believe, also update `findings.md` and `task_plan.md`.

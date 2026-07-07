@@ -75,7 +75,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
   - preserving wall text and high-frequency visual details,
   - producing cleaner mesh output.
 - Framing the broader handheld-device-to-2DGS pipeline, including whether FastLIVO2 outputs can eventually replace or reduce the COLMAP dependency.
-- Diagnosing `reception_hall_balanced_v1`; GT/render pairs show broadly correct alignment but excessive smoothing and loss of small text/detail.
+- Diagnosing `reception_hall_balanced_v1`; GT/render pairs show broadly correct alignment but excessive smoothing and loss of small text/detail, while monitor/free-view inspection shows wall protrusions and poor novel-view geometry.
 
 ## Pipeline Directions
 
@@ -209,14 +209,16 @@ python render.py \
    cd /root/autodl-tmp/noob_2dgs
    git pull --ff-only
    ```
-2. Run `reception_hall_detail_v2` to test whether high resolution, weaker regularization, lower culling, and more permissive densification recover small text/detail.
-3. Compare against `reception_hall_balanced_v1`:
+2. Decide whether to do one more diagnostic training run or reshoot:
+   - If fast iteration is acceptable, run `reception_hall_detail_v2` once to test whether detail can return without making geometry worse.
+   - If the priority is final project quality, plan a new capture with denser, more deliberate coverage.
+3. Compare any new run against `reception_hall_balanced_v1`:
    - blue sign text and edges,
    - fire cabinet text and box edges,
    - plant leaf boundaries,
    - wall smoothness,
    - amount of floaters in monitor/free-view inspection.
-4. If detail improves but floaters return, add moderate cleanup rather than returning to `lambda_dist=50`.
-5. If detail does not improve, revisit image resolution, COLMAP camera quality, and possible training/render pipeline issues.
+4. If detail improves but wall protrusions/floaters remain, treat the current dataset as capture-limited and reshoot rather than only tuning parameters.
+5. If reshooting, use the current scene as the benchmark and compare old/new COLMAP statistics plus old/new 2DGS renders.
 6. Record each experiment result in `progress.md`.
 7. If a code-level improvement becomes necessary, implement locally, commit, push, then update the server with `git pull --ff-only`.

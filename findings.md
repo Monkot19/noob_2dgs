@@ -199,6 +199,16 @@ Interpretation:
 - `densify_grad_threshold=0.0003` is higher than the default `0.0002`, so it may suppress fine-detail Gaussian growth.
 - Default `-r -1` downscales images wider than 1.6K, which can hurt small text; using `-r 1` is important for evaluating text-heavy regions.
 - The next experiment should prioritize high-resolution, lower geometry regularization, and more permissive densification.
+- User later clarified that from other free-view monitor angles, the wall is not merely smooth; it has visible protrusions and poor geometry.
+- This means training-view GT/render pairs alone are insufficient for judging reconstruction quality.
+- The target quality should include free-view/novel-view stability, wall flatness from oblique viewpoints, and absence of floating stretched splats.
+- If free-view wall geometry remains poor across multiple parameter sets, a new photo capture is likely more valuable than continued parameter tweaking.
+
+Capture-quality implications:
+
+- Indoor scenes with large plain walls, glossy floors, LED light strips, black sofa, reflective glass, and thin plants are difficult for image-only COLMAP/2DGS.
+- A successful reshoot should prioritize dense view coverage, oblique views of walls, loop closure, slower motion, less blur, exposure stability, and enough parallax.
+- For the current `reception_hall`, the dataset has 129 registered images, which is enough to run but may be sparse for a small indoor scene with weak/repetitive texture and reflective surfaces.
 
 ## Key Parameter Effects
 
