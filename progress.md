@@ -61,6 +61,14 @@ The project is operational on AutoDL. The current focus is experiment management
 - User clarified that monitor/free-view inspection shows wall protrusions from other viewpoints; the issue is not only over-smoothing in train-view renders.
 - Revised diagnosis: the current dataset/model may be novel-view geometry limited. A reshoot is a serious option if final scene quality is the goal.
 
+### 2026-07-08
+
+- User captured a new 58-second fisheye-camera video at 10 Hz, producing about 580 extracted frames, and uploaded the frames to the AutoDL dataset folder.
+- User has fisheye camera intrinsics and asked whether/how they can be used with COLMAP.
+- Updated `convert.py` to support known COLMAP intrinsics through `--camera_params`.
+- Updated `convert.py` to support `--matcher sequential`, which is better suited for video/frame sequences than exhaustive matching.
+- Added fisheye-video conversion notes to `docs/2DGS_CHINESE_WORKFLOW.md`.
+
 ## Latest Known Server Commands
 
 Check repository state on AutoDL:
@@ -130,12 +138,14 @@ python render.py \
 - Should future experiments save screenshots/renders into a structured comparison directory?
 - What exact data products will the handheld device export: images only, image timestamps, LiDAR scans, IMU, calibrated camera-LiDAR extrinsics, FastLIVO2 trajectory, colored point cloud?
 - Can FastLIVO2 outputs be converted into COLMAP-compatible `sparse/0` files for direct 2DGS training?
+- What exact fisheye calibration model does the camera intrinsics use: OpenCV fisheye `fx,fy,cx,cy,k1,k2,k3,k4`, ordinary OpenCV radial/tangential, or another model?
+- What is the new fisheye frame dataset path on AutoDL?
 
 ## Next Assistant Actions
 
 1. Keep using `task_plan.md`, `findings.md`, and `progress.md` as the persistent working memory for this project.
-2. Help define the target data contract for the handheld-device-to-2DGS pipeline.
-3. Ask the user to run `reception_hall_detail_v2` and compare it against `reception_hall_balanced_v1`.
-4. If user chooses not to reshoot yet, use `reception_hall_detail_v2` as one last diagnostic to separate parameter issues from capture issues.
-5. If free-view wall protrusions persist, help design a better capture protocol and benchmark the new dataset against the old one.
+2. Help the user run COLMAP conversion for the new fisheye-video dataset using known intrinsics.
+3. Ask for the exact fisheye intrinsic values and dataset path if needed.
+4. After conversion, compare COLMAP analyzer stats against the old `reception_hall_colmap`.
+5. Train a quick 2DGS smoke test on the new undistorted dataset.
 6. After every new server experiment or code change, update `progress.md`; if the result changes what we believe, also update `findings.md` and `task_plan.md`.

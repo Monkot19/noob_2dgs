@@ -78,6 +78,26 @@ COLMAP 3.6 ... without CUDA
 -DCMAKE_CUDA_ARCHITECTURES=89
 ```
 
+## Fisheye Video Capture
+
+- User captured a new 58-second fisheye-camera video at 10 Hz, producing about 580 frames, and uploaded the extracted images to the server dataset folder.
+- Fisheye intrinsics can and should be used in COLMAP if calibration is available.
+- The correct path is not to train 2DGS directly on a fisheye camera model. Instead:
+  1. COLMAP feature extraction uses the fisheye model and known intrinsics.
+  2. COLMAP estimates poses/sparse points.
+  3. `image_undistorter` writes undistorted `images/` and `sparse/0/` with `PINHOLE` intrinsics.
+  4. 2DGS trains on that undistorted COLMAP output.
+- For OpenCV fisheye calibration, use COLMAP `OPENCV_FISHEYE` with parameter order:
+
+```text
+fx,fy,cx,cy,k1,k2,k3,k4
+```
+
+- Video frame sequences should prefer sequential matching over exhaustive matching to reduce compute and exploit temporal continuity.
+- `convert.py` now supports:
+  - `--camera_params`
+  - `--matcher exhaustive|sequential`
+
 ## FastLIVO2 as a Possible COLMAP Alternative
 
 - Treat FastLIVO2-to-2DGS as a research/engineering branch, not yet the default path.

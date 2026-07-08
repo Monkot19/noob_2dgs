@@ -20,8 +20,12 @@ parser.add_argument("--no_gpu", action='store_true')
 parser.add_argument("--skip_matching", action='store_true')
 parser.add_argument("--source_path", "-s", required=True, type=str)
 parser.add_argument("--camera", default="OPENCV", type=str)
+parser.add_argument("--camera_params", default="", type=str,
+                    help="Optional COLMAP camera parameters, e.g. fx,fy,cx,cy,k1,k2,k3,k4 for OPENCV_FISHEYE.")
 parser.add_argument("--camera_per_image", action="store_true",
                     help="Use separate camera intrinsics for each image. This is useful when input images have different dimensions.")
+parser.add_argument("--matcher", default="exhaustive", choices=["exhaustive", "sequential"],
+                    help="COLMAP matcher to use. Use sequential for video/frame sequences.")
 parser.add_argument("--colmap_executable", default="", type=str)
 parser.add_argument("--resize", action="store_true")
 parser.add_argument("--magick_executable", default="", type=str)
@@ -41,15 +45,22 @@ if not args.skip_matching:
         --ImageReader.single_camera " + str(single_camera) + " \
         --ImageReader.camera_model " + args.camera + " \
         --SiftExtraction.use_gpu " + str(use_gpu)
+    if args.camera_params:
+        feat_extracton_cmd += " --ImageReader.camera_params \"" + args.camera_params + "\""
     exit_code = os.system(feat_extracton_cmd)
     if exit_code != 0:
         logging.error(f"Feature extraction failed with code {exit_code}. Exiting.")
         exit(exit_code)
 
     ## Feature matching
-    feat_matching_cmd = colmap_command + " exhaustive_matcher \
-        --database_path " + args.source_path + "/distorted/database.db \
-        --SiftMatching.use_gpu " + str(use_gpu)
+    if args.matcher == "sequential":
+        feat_matching_cmd = colmap_command + " sequential_matcher \
+            --database_path " + args.source_path + "/distorted/database.db \
+            --SiftMatching.use_gpu " + str(use_gpu)
+    else:
+        feat_matching_cmd = colmap_command + " exhaustive_matcher \
+            --database_path " + args.source_path + "/distorted/database.db \
+            --SiftMatching.use_gpu " + str(use_gpu)
     exit_code = os.system(feat_matching_cmd)
     if exit_code != 0:
         logging.error(f"Feature matching failed with code {exit_code}. Exiting.")

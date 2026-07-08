@@ -312,6 +312,67 @@ cd /root/autodl-tmp/noob_2dgs
 python render.py -s /root/autodl-tmp/datasets/my_scene -m /root/autodl-tmp/outputs/my_scene
 ```
 
+## 22. 鱼眼相机视频抽帧数据
+
+如果数据来自鱼眼相机视频抽帧，建议优先把鱼眼内参提供给 COLMAP，而不是让 COLMAP 从零估计普通 OPENCV 相机。
+
+### 22.1 推荐数据结构
+
+```text
+/root/autodl-tmp/datasets/fisheye_scene/
+└── input/
+    ├── 000001.jpg
+    ├── 000002.jpg
+    └── ...
+```
+
+同一段视频抽帧通常来自同一台相机、同一分辨率、同一内参，所以不要使用 `--camera_per_image`，保持单相机模式更合理。
+
+### 22.2 使用鱼眼内参跑 COLMAP
+
+如果标定结果是 OpenCV fisheye 模型，参数顺序通常是：
+
+```text
+fx,fy,cx,cy,k1,k2,k3,k4
+```
+
+示例：
+
+```bash
+cd /root/autodl-tmp/noob_2dgs
+
+python convert.py \
+  -s /root/autodl-tmp/datasets/fisheye_scene \
+  --camera OPENCV_FISHEYE \
+  --camera_params "fx,fy,cx,cy,k1,k2,k3,k4" \
+  --matcher sequential
+```
+
+把上面的 `fx,fy,cx,cy,k1,k2,k3,k4` 换成真实标定值。
+
+`--matcher sequential` 适合视频抽帧，因为相邻帧天然连续；默认 exhaustive matcher 会做大量两两匹配，580 张图会比较慢。
+
+### 22.3 重要限制
+
+2DGS 训练阶段不直接读取鱼眼相机模型。正确流程是：
+
+```text
+鱼眼 input/
+  -> COLMAP 使用 OPENCV_FISHEYE 建图
+  -> COLMAP image_undistorter 输出去畸变 images/ 和 PINHOLE sparse/0
+  -> 2DGS 读取 images/ + sparse/0
+```
+
+也就是说，鱼眼模型只用于 COLMAP 的前半段；`convert.py` 后面的 `image_undistorter` 会把它转成 2DGS 可读的针孔模型。
+
+### 22.4 如果 COLMAP 仍然困难
+
+- 先确认所有抽帧分辨率一致。
+- 视频 10Hz 抽出的 580 张图可能相邻帧过密；如果匹配慢或质量差，可以尝试每 2-3 帧取一张。
+- 避免运动模糊严重的帧。
+- 如果是室内弱纹理墙面，拍摄时需要斜视角、环绕、回环和足够视差。
+- 跑完后用 `colmap model_analyzer --path <dataset>/sparse/0` 检查注册帧数、点数、track length 和 reprojection error。
+
 ## 17. train.py 参数详解
 
 本节只解释日常最常用、最影响结果的参数。默认参数定义在 `arguments/__init__.py`，训练主逻辑在 `train.py`。

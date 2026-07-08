@@ -25,6 +25,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 - Server repository path: `/root/autodl-tmp/noob_2dgs`
 - Main dataset: `/root/autodl-tmp/datasets/reception_hall_colmap`
 - Main output root: `/root/autodl-tmp/outputs`
+- New capture: 58-second fisheye-camera video at 10 Hz, about 580 extracted frames uploaded under the AutoDL dataset folder.
 
 ## Operating Convention
 
@@ -49,6 +50,8 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 - Extended `convert.py`:
   - Added `--camera_per_image` for mixed image dimensions.
   - Added Mapper fallback when `--Mapper.ba_global_function_tolerance=...` is unsupported by older COLMAP.
+  - Added `--camera_params` for known COLMAP intrinsics.
+  - Added `--matcher sequential` for video/frame-sequence datasets.
 - AutoDL environment reached a runnable state:
   - PyTorch CUDA works.
   - `diff_surfel_rasterization` imports successfully.
@@ -69,6 +72,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 ## In Progress
 
 - Tuning `train.py` parameters for `reception_hall_colmap`.
+- Preparing a new fisheye-video dataset using known fisheye intrinsics in COLMAP.
 - Balancing:
   - reducing floating colored Gaussians,
   - keeping walls flat,
@@ -209,16 +213,14 @@ python render.py \
    cd /root/autodl-tmp/noob_2dgs
    git pull --ff-only
    ```
-2. Decide whether to do one more diagnostic training run or reshoot:
-   - If fast iteration is acceptable, run `reception_hall_detail_v2` once to test whether detail can return without making geometry worse.
-   - If the priority is final project quality, plan a new capture with denser, more deliberate coverage.
-3. Compare any new run against `reception_hall_balanced_v1`:
+2. Convert the new fisheye-video frame dataset using `OPENCV_FISHEYE`, known `camera_params`, and sequential matching.
+3. Run `colmap model_analyzer` on the new dataset and compare against the old `reception_hall_colmap` stats.
+4. Train a quick 2DGS smoke test on the new undistorted COLMAP output.
+5. Compare the new run against `reception_hall_balanced_v1`:
    - blue sign text and edges,
    - fire cabinet text and box edges,
    - plant leaf boundaries,
    - wall smoothness,
    - amount of floaters in monitor/free-view inspection.
-4. If detail improves but wall protrusions/floaters remain, treat the current dataset as capture-limited and reshoot rather than only tuning parameters.
-5. If reshooting, use the current scene as the benchmark and compare old/new COLMAP statistics plus old/new 2DGS renders.
 6. Record each experiment result in `progress.md`.
 7. If a code-level improvement becomes necessary, implement locally, commit, push, then update the server with `git pull --ff-only`.
