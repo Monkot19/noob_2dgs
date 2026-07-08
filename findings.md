@@ -119,6 +119,14 @@ Interpretation:
 - Reprojection error is slightly above 1 px and slightly worse than the old ~0.96 px, but still plausible for fisheye/video data after undistortion.
 - This dataset is a strong candidate to replace the old 129-image dataset as the next 2DGS baseline.
 
+Fisheye undistortion issue:
+
+- User compared fisheye input frames with COLMAP undistorted output images.
+- The input fisheye frames have a very wide field of view, but COLMAP's undistorted `images/` output is cropped to a very small central region.
+- This can happen because `image_undistorter` converts the fisheye camera to a pinhole camera and, by default, tends to avoid large invalid/blank border regions.
+- For 2DGS this is important: the model only consumes the undistorted pinhole `images/` and `sparse/0`, so an overly narrow undistortion output discards much of the useful fisheye coverage.
+- Before training the 30k run, verify and tune the undistortion strategy so the resulting `images/` retain enough useful field of view.
+
 ## FastLIVO2 as a Possible COLMAP Alternative
 
 - Treat FastLIVO2-to-2DGS as a research/engineering branch, not yet the default path.

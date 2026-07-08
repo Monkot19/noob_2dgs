@@ -78,7 +78,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 ## In Progress
 
 - Tuning `train.py` parameters for `reception_hall_colmap`.
-- Training and evaluating the new fisheye-video dataset as a candidate replacement baseline.
+- Fixing/evaluating the new fisheye-video dataset undistortion before training, because COLMAP output images appear to keep only a very narrow central field of view.
 - Balancing:
   - reducing floating colored Gaussians,
   - keeping walls flat,
@@ -219,14 +219,15 @@ python render.py \
    cd /root/autodl-tmp/noob_2dgs
    git pull --ff-only
    ```
-2. Train a full 30k-step 2DGS comparison run on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`, matching the previous 30k-step baseline for a fairer comparison.
-3. Render train views and inspect monitor/free-view geometry.
-4. Compare the new run against `reception_hall_balanced_v1`:
+2. Inspect and adjust the COLMAP fisheye undistortion output so `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2/images` keeps a useful field of view.
+3. Then train a full 30k-step 2DGS comparison run on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`, matching the previous 30k-step baseline for a fairer comparison.
+4. Render train views and inspect monitor/free-view geometry.
+5. Compare the new run against `reception_hall_balanced_v1`:
    - blue sign text and edges,
    - fire cabinet text and box edges,
    - plant leaf boundaries,
    - wall smoothness,
    - amount of floaters in monitor/free-view inspection.
-5. If the new dataset improves wall stability, promote it as the new baseline dataset.
-6. Record each experiment result in `progress.md`.
-7. If a code-level improvement becomes necessary, implement locally, commit, push, then update the server with `git pull --ff-only`.
+6. If the new dataset improves wall stability, promote it as the new baseline dataset.
+7. Record each experiment result in `progress.md`.
+8. If a code-level improvement becomes necessary, implement locally, commit, push, then update the server with `git pull --ff-only`.

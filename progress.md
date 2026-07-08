@@ -80,6 +80,7 @@ The project is operational on AutoDL. The current focus is experiment management
   - Mean reprojection error: 1.064254 px
 - Interpretation: the fisheye-video COLMAP result is strong overall, with full registration and much better track length/observations than the old 129-image dataset, though reprojection error is slightly higher.
 - User chose to run a full 30k-step training job for the fisheye dataset, instead of a 7k smoke test, to compare more directly with the previous 30k-step experiments.
+- User compared fisheye input frames against COLMAP undistorted output images and found the output field of view is extremely small. Revised next step: inspect/tune fisheye undistortion before committing to the 30k 2DGS training run.
 
 ## Latest Known Server Commands
 
@@ -156,8 +157,9 @@ python render.py \
 ## Next Assistant Actions
 
 1. Keep using `task_plan.md`, `findings.md`, and `progress.md` as the persistent working memory for this project.
-2. Train a full 30k-step comparison run on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`.
-3. Render train views and inspect monitor/free-view geometry against the old `reception_hall_colmap` results.
-4. If the new fisheye dataset improves wall stability, promote it as the new baseline dataset.
-5. If quality is still poor, inspect video frame blur/overlap and fisheye undistortion artifacts.
-6. After every new server experiment or code change, update `progress.md`; if the result changes what we believe, also update `findings.md` and `task_plan.md`.
+2. Help the user inspect and tune COLMAP/OpenCV fisheye undistortion so the new dataset keeps a useful field of view.
+3. Then train a full 30k-step comparison run on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`.
+4. Render train views and inspect monitor/free-view geometry against the old `reception_hall_colmap` results.
+5. If the new fisheye dataset improves wall stability, promote it as the new baseline dataset.
+6. If quality is still poor, inspect video frame blur/overlap and fisheye undistortion artifacts.
+7. After every new server experiment or code change, update `progress.md`; if the result changes what we believe, also update `findings.md` and `task_plan.md`.
