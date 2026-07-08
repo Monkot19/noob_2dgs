@@ -98,6 +98,27 @@ fx,fy,cx,cy,k1,k2,k3,k4
   - `--camera_params`
   - `--matcher exhaustive|sequential`
 
+Fisheye dataset `reception_hall_by_geoscanS2` COLMAP result:
+
+```text
+Cameras: 1
+Images: 598
+Registered images: 598
+Points: 21822
+Observations: 506302
+Mean track length: 23.201448
+Mean observations per image: 846.658863
+Mean reprojection error: 1.064254px
+```
+
+Interpretation:
+
+- Full registration is excellent.
+- Mean track length is much stronger than the old `reception_hall_colmap` result (~23.2 vs ~6.9), meaning points are observed across many more frames.
+- Points and observations are substantially higher than the old dataset.
+- Reprojection error is slightly above 1 px and slightly worse than the old ~0.96 px, but still plausible for fisheye/video data after undistortion.
+- This dataset is a strong candidate to replace the old 129-image dataset as the next 2DGS baseline.
+
 ## FastLIVO2 as a Possible COLMAP Alternative
 
 - Treat FastLIVO2-to-2DGS as a research/engineering branch, not yet the default path.

@@ -25,7 +25,8 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 - Server repository path: `/root/autodl-tmp/noob_2dgs`
 - Main dataset: `/root/autodl-tmp/datasets/reception_hall_colmap`
 - Main output root: `/root/autodl-tmp/outputs`
-- New capture: 58-second fisheye-camera video at 10 Hz, about 580 extracted frames uploaded under the AutoDL dataset folder.
+- New capture dataset: `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`
+- New capture source: 58-second fisheye-camera video at 10 Hz, 598 extracted/registered frames.
 
 ## Operating Convention
 
@@ -61,6 +62,11 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
   - 9715 sparse points.
   - Mean track length about 6.9.
   - Mean reprojection error about 0.96 px.
+- COLMAP conversion succeeded for `reception_hall_by_geoscanS2`:
+  - 598 registered images out of 598.
+  - 21822 sparse points.
+  - Mean track length about 23.2.
+  - Mean reprojection error about 1.06 px.
 - Rendering reached image/video export; missing `ffmpeg` was identified as the blocker for MP4 video writing.
 - Expanded Chinese workflow documentation with train/render parameter guide and context migration instructions.
 - Created and committed persistent planning files:
@@ -72,7 +78,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 ## In Progress
 
 - Tuning `train.py` parameters for `reception_hall_colmap`.
-- Preparing a new fisheye-video dataset using known fisheye intrinsics in COLMAP.
+- Training and evaluating the new fisheye-video dataset as a candidate replacement baseline.
 - Balancing:
   - reducing floating colored Gaussians,
   - keeping walls flat,
@@ -213,14 +219,14 @@ python render.py \
    cd /root/autodl-tmp/noob_2dgs
    git pull --ff-only
    ```
-2. Convert the new fisheye-video frame dataset using `OPENCV_FISHEYE`, known `camera_params`, and sequential matching.
-3. Run `colmap model_analyzer` on the new dataset and compare against the old `reception_hall_colmap` stats.
-4. Train a quick 2DGS smoke test on the new undistorted COLMAP output.
-5. Compare the new run against `reception_hall_balanced_v1`:
+2. Train a quick 2DGS smoke test on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`.
+3. Render train views and inspect monitor/free-view geometry.
+4. Compare the new run against `reception_hall_balanced_v1`:
    - blue sign text and edges,
    - fire cabinet text and box edges,
    - plant leaf boundaries,
    - wall smoothness,
    - amount of floaters in monitor/free-view inspection.
+5. If the new dataset improves wall stability, promote it as the new baseline dataset.
 6. Record each experiment result in `progress.md`.
 7. If a code-level improvement becomes necessary, implement locally, commit, push, then update the server with `git pull --ff-only`.

@@ -68,6 +68,17 @@ The project is operational on AutoDL. The current focus is experiment management
 - Updated `convert.py` to support known COLMAP intrinsics through `--camera_params`.
 - Updated `convert.py` to support `--matcher sequential`, which is better suited for video/frame sequences than exhaustive matching.
 - Added fisheye-video conversion notes to `docs/2DGS_CHINESE_WORKFLOW.md`.
+- User converted `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2` successfully with `OPENCV_FISHEYE`, known intrinsics, and sequential matching.
+- COLMAP `model_analyzer` for `reception_hall_by_geoscanS2`:
+  - Cameras: 1
+  - Images: 598
+  - Registered images: 598
+  - Points: 21822
+  - Observations: 506302
+  - Mean track length: 23.201448
+  - Mean observations per image: 846.658863
+  - Mean reprojection error: 1.064254 px
+- Interpretation: the fisheye-video COLMAP result is strong overall, with full registration and much better track length/observations than the old 129-image dataset, though reprojection error is slightly higher.
 
 ## Latest Known Server Commands
 
@@ -139,13 +150,13 @@ python render.py \
 - What exact data products will the handheld device export: images only, image timestamps, LiDAR scans, IMU, calibrated camera-LiDAR extrinsics, FastLIVO2 trajectory, colored point cloud?
 - Can FastLIVO2 outputs be converted into COLMAP-compatible `sparse/0` files for direct 2DGS training?
 - What exact fisheye calibration model does the camera intrinsics use: OpenCV fisheye `fx,fy,cx,cy,k1,k2,k3,k4`, ordinary OpenCV radial/tangential, or another model?
-- What is the new fisheye frame dataset path on AutoDL?
+- New fisheye frame dataset path on AutoDL is `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`.
 
 ## Next Assistant Actions
 
 1. Keep using `task_plan.md`, `findings.md`, and `progress.md` as the persistent working memory for this project.
-2. Help the user run COLMAP conversion for the new fisheye-video dataset using known intrinsics.
-3. Ask for the exact fisheye intrinsic values and dataset path if needed.
-4. After conversion, compare COLMAP analyzer stats against the old `reception_hall_colmap`.
-5. Train a quick 2DGS smoke test on the new undistorted dataset.
+2. Train a quick 2DGS smoke test on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`.
+3. Render train views and inspect monitor/free-view geometry against the old `reception_hall_colmap` results.
+4. If the new fisheye dataset improves wall stability, promote it as the new baseline dataset.
+5. If quality is still poor, inspect video frame blur/overlap and fisheye undistortion artifacts.
 6. After every new server experiment or code change, update `progress.md`; if the result changes what we believe, also update `findings.md` and `task_plan.md`.
