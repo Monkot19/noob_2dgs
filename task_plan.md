@@ -219,7 +219,7 @@ python render.py \
    cd /root/autodl-tmp/noob_2dgs
    git pull --ff-only
    ```
-2. Train a quick 2DGS smoke test on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`.
+2. Train a full 30k-step 2DGS comparison run on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`, matching the previous 30k-step baseline for a fairer comparison.
 3. Render train views and inspect monitor/free-view geometry.
 4. Compare the new run against `reception_hall_balanced_v1`:
    - blue sign text and edges,

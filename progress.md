@@ -79,6 +79,7 @@ The project is operational on AutoDL. The current focus is experiment management
   - Mean observations per image: 846.658863
   - Mean reprojection error: 1.064254 px
 - Interpretation: the fisheye-video COLMAP result is strong overall, with full registration and much better track length/observations than the old 129-image dataset, though reprojection error is slightly higher.
+- User chose to run a full 30k-step training job for the fisheye dataset, instead of a 7k smoke test, to compare more directly with the previous 30k-step experiments.
 
 ## Latest Known Server Commands
 
@@ -155,7 +156,7 @@ python render.py \
 ## Next Assistant Actions
 
 1. Keep using `task_plan.md`, `findings.md`, and `progress.md` as the persistent working memory for this project.
-2. Train a quick 2DGS smoke test on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`.
+2. Train a full 30k-step comparison run on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`.
 3. Render train views and inspect monitor/free-view geometry against the old `reception_hall_colmap` results.
 4. If the new fisheye dataset improves wall stability, promote it as the new baseline dataset.
 5. If quality is still poor, inspect video frame blur/overlap and fisheye undistortion artifacts.
