@@ -140,6 +140,7 @@ Fisheye undistortion issue:
 - This means the first `_undistorter` attempt did not solve the FOV/scale problem. The repeated 20% size suggests the active COLMAP undistortion settings may be choosing a minimum scale, so the next diagnostic should inspect `colmap image_undistorter -h` and try explicit scale/FOV parameters if supported by the installed COLMAP version.
 - Explicit scale undistortion produced `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistort_scale1/images` at `(1280, 1024)`, matching the input image size and preserving much more field of view than the `(256, 204)` original output.
 - User visually inspected the `undistort_scale1` images and said they appear successful. This is the current best fisheye-derived dataset for the next 30k comparison run.
+- 2DGS expects COLMAP poses at `<dataset>/sparse/0/images.bin` or `<dataset>/sparse/0/images.txt`. If `colmap image_undistorter` writes files directly under `<dataset>/sparse/`, the images can look correct but `train.py -s <dataset>` will fail until the reconstruction files are placed under `sparse/0/`.
 
 ## FastLIVO2 as a Possible COLMAP Alternative
 

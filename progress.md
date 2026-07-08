@@ -100,6 +100,7 @@ The project is operational on AutoDL. The current focus is experiment management
   - original COLMAP undistorted `images`: `(256, 204)`
   - `undistort_scale1/images`: `(1280, 1024)`
 - User visually checked images and said the result appears successful. This dataset is now the next candidate for a full 30k 2DGS comparison run.
+- First training attempt on `reception_hall_by_geoscanS2_undistort_scale1` failed because 2DGS could not find `sparse/0/images.bin` or `sparse/0/images.txt`. Likely cause: COLMAP `image_undistorter` wrote the reconstruction files under `sparse/` directly instead of `sparse/0/`, or did not write the expected model files into the new output path. Next diagnostic is to list the dataset tree and copy/move `cameras.*`, `images.*`, and `points3D.*` into `sparse/0/` if they exist.
 
 ## Latest Known Server Commands
 
