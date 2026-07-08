@@ -95,6 +95,11 @@ The project is operational on AutoDL. The current focus is experiment management
   - original COLMAP undistorted `images`: `(256, 204)`
   - `_undistorter` output with `--blank_pixels 0.3 --max_image_size 1600`: `(256, 204)`
 - Interpretation: the `_undistorter` attempt did not change the effective undistorted image size/FOV. Do not train on `_undistorter` yet; first inspect `colmap image_undistorter -h` and try scale-related options such as `--min_scale`/`--max_scale` if available.
+- User created `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistort_scale1` with explicit scale settings. Size check:
+  - input: `(1280, 1024)`
+  - original COLMAP undistorted `images`: `(256, 204)`
+  - `undistort_scale1/images`: `(1280, 1024)`
+- User visually checked images and said the result appears successful. This dataset is now the next candidate for a full 30k 2DGS comparison run.
 
 ## Latest Known Server Commands
 
@@ -171,8 +176,8 @@ python render.py \
 ## Next Assistant Actions
 
 1. Keep using `task_plan.md`, `findings.md`, and `progress.md` as the persistent working memory for this project.
-2. Help the user inspect `colmap image_undistorter -h` on AutoDL and tune scale/FOV options, because `--blank_pixels 0.3 --max_image_size 1600` still produced `(256, 204)` images.
-3. Only train a full 30k-step comparison run after a new undistorted dataset keeps significantly more field of view than `(256, 204)`.
+2. Have the user run a full 30k-step comparison training on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistort_scale1`.
+3. Render the `undistort_scale1` run with `--skip_mesh`, then compare scene extent, wall stability, and detail retention against the narrow-FOV fisheye baseline.
 4. Render train views and inspect monitor/free-view geometry against the old `reception_hall_colmap` results.
 5. If the new fisheye dataset improves wall stability, promote it as the new baseline dataset.
 6. If quality is still poor, inspect video frame blur/overlap and fisheye undistortion artifacts.

@@ -78,7 +78,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 ## In Progress
 
 - Tuning `train.py` parameters for `reception_hall_colmap`.
-- Fixing/evaluating the new fisheye-video dataset undistortion before further training, because the first completed fisheye 30k run used very narrow COLMAP undistorted images and therefore reconstructs too small a scene.
+- Evaluating the new full-size fisheye undistortion dataset before/through training, because the first completed fisheye 30k run used very narrow COLMAP undistorted images and therefore reconstructs too small a scene.
 - Balancing:
   - reducing floating colored Gaussians,
   - keeping walls flat,
@@ -220,8 +220,8 @@ python render.py \
    cd /root/autodl-tmp/noob_2dgs
    git pull --ff-only
    ```
-2. Inspect `colmap image_undistorter -h` on AutoDL and tune scale/FOV parameters, because both the original fisheye COLMAP undistorted output and the `_undistorter` attempt are `(256, 204)` from `(1280, 1024)` input.
-3. Only train a new full 30k-step comparison run after creating an undistorted dataset with significantly more useful field of view than `(256, 204)`.
+2. Train a new full 30k-step comparison run on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistort_scale1`, whose `images` are `(1280, 1024)` instead of `(256, 204)`.
+3. Render the new run and compare scene extent/detail/geometry against the narrow-FOV fisheye baseline `/root/autodl-tmp/outputs/reception_hall_geoscanS2_30k_v1`.
 4. Render train views and inspect monitor/free-view geometry.
 5. Compare the new run against `reception_hall_balanced_v1`:
    - blue sign text and edges,
