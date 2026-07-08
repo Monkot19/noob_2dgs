@@ -220,8 +220,8 @@ python render.py \
    cd /root/autodl-tmp/noob_2dgs
    git pull --ff-only
    ```
-2. Inspect `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistorter/images`, created with `--blank_pixels 0.3 --max_image_size 1600`, and compare its field of view against the narrow original `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2/images`.
-3. If the `_undistorter` dataset keeps enough useful field of view, train a full 30k-step 2DGS comparison run on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistorter`.
+2. Inspect `colmap image_undistorter -h` on AutoDL and tune scale/FOV parameters, because both the original fisheye COLMAP undistorted output and the `_undistorter` attempt are `(256, 204)` from `(1280, 1024)` input.
+3. Only train a new full 30k-step comparison run after creating an undistorted dataset with significantly more useful field of view than `(256, 204)`.
 4. Render train views and inspect monitor/free-view geometry.
 5. Compare the new run against `reception_hall_balanced_v1`:
    - blue sign text and edges,

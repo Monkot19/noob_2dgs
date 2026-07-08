@@ -136,6 +136,8 @@ Fisheye undistortion issue:
 - This narrow-FOV run is useful as a baseline proving the fisheye COLMAP output can train, but it does not solve the scene-size problem because the undistorted images discarded too much field of view.
 - User created a candidate wider-FOV undistortion output at `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistorter` using `colmap image_undistorter --blank_pixels 0.3 --max_image_size 1600`.
 - Next training should use `_undistorter` only after visually checking that its `images/` retain significantly more scene coverage than the narrow original output.
+- Size check showed both original COLMAP undistorted output and `_undistorter` output are `(256, 204)`, while fisheye input frames are `(1280, 1024)`.
+- This means the first `_undistorter` attempt did not solve the FOV/scale problem. The repeated 20% size suggests the active COLMAP undistortion settings may be choosing a minimum scale, so the next diagnostic should inspect `colmap image_undistorter -h` and try explicit scale/FOV parameters if supported by the installed COLMAP version.
 
 ## FastLIVO2 as a Possible COLMAP Alternative
 
