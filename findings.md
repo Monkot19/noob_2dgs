@@ -126,6 +126,16 @@ Fisheye undistortion issue:
 - This can happen because `image_undistorter` converts the fisheye camera to a pinhole camera and, by default, tends to avoid large invalid/blank border regions.
 - For 2DGS this is important: the model only consumes the undistorted pinhole `images/` and `sparse/0`, so an overly narrow undistortion output discards much of the useful fisheye coverage.
 - Before training the 30k run, verify and tune the undistortion strategy so the resulting `images/` retain enough useful field of view.
+- User already completed one 30k 2DGS training run on the narrow-FOV fisheye COLMAP output:
+  - Dataset: `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`
+  - Output: `/root/autodl-tmp/outputs/reception_hall_geoscanS2_30k_v1`
+  - Final train L1: `0.009084`
+  - Final train PSNR: `37.131`
+  - Points: `230465`
+  - `render.py --skip_mesh` completed.
+- This narrow-FOV run is useful as a baseline proving the fisheye COLMAP output can train, but it does not solve the scene-size problem because the undistorted images discarded too much field of view.
+- User created a candidate wider-FOV undistortion output at `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistorter` using `colmap image_undistorter --blank_pixels 0.3 --max_image_size 1600`.
+- Next training should use `_undistorter` only after visually checking that its `images/` retain significantly more scene coverage than the narrow original output.
 
 ## FastLIVO2 as a Possible COLMAP Alternative
 

@@ -78,7 +78,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 ## In Progress
 
 - Tuning `train.py` parameters for `reception_hall_colmap`.
-- Fixing/evaluating the new fisheye-video dataset undistortion before training, because COLMAP output images appear to keep only a very narrow central field of view.
+- Fixing/evaluating the new fisheye-video dataset undistortion before further training, because the first completed fisheye 30k run used very narrow COLMAP undistorted images and therefore reconstructs too small a scene.
 - Balancing:
   - reducing floating colored Gaussians,
   - keeping walls flat,
@@ -86,6 +86,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
   - producing cleaner mesh output.
 - Framing the broader handheld-device-to-2DGS pipeline, including whether FastLIVO2 outputs can eventually replace or reduce the COLMAP dependency.
 - Diagnosing `reception_hall_balanced_v1`; GT/render pairs show broadly correct alignment but excessive smoothing and loss of small text/detail, while monitor/free-view inspection shows wall protrusions and poor novel-view geometry.
+- Treating `/root/autodl-tmp/outputs/reception_hall_geoscanS2_30k_v1` as a completed narrow-FOV fisheye baseline, not the final target, because its training/rendering worked but the usable field of view was too small.
 
 ## Pipeline Directions
 
@@ -219,8 +220,8 @@ python render.py \
    cd /root/autodl-tmp/noob_2dgs
    git pull --ff-only
    ```
-2. Inspect and adjust the COLMAP fisheye undistortion output so `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2/images` keeps a useful field of view.
-3. Then train a full 30k-step 2DGS comparison run on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`, matching the previous 30k-step baseline for a fairer comparison.
+2. Inspect `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistorter/images`, created with `--blank_pixels 0.3 --max_image_size 1600`, and compare its field of view against the narrow original `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2/images`.
+3. If the `_undistorter` dataset keeps enough useful field of view, train a full 30k-step 2DGS comparison run on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistorter`.
 4. Render train views and inspect monitor/free-view geometry.
 5. Compare the new run against `reception_hall_balanced_v1`:
    - blue sign text and edges,

@@ -81,6 +81,15 @@ The project is operational on AutoDL. The current focus is experiment management
 - Interpretation: the fisheye-video COLMAP result is strong overall, with full registration and much better track length/observations than the old 129-image dataset, though reprojection error is slightly higher.
 - User chose to run a full 30k-step training job for the fisheye dataset, instead of a 7k smoke test, to compare more directly with the previous 30k-step experiments.
 - User compared fisheye input frames against COLMAP undistorted output images and found the output field of view is extremely small. Revised next step: inspect/tune fisheye undistortion before committing to the 30k 2DGS training run.
+- User clarified that a 30k 2DGS run on the narrow-FOV fisheye COLMAP output was already completed:
+  - Dataset: `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`
+  - Output: `/root/autodl-tmp/outputs/reception_hall_geoscanS2_30k_v1`
+  - Iteration 30000 train L1: 0.009084
+  - Iteration 30000 train PSNR: 37.131
+  - Points: 230465
+  - Render with `--skip_mesh` completed.
+- User's main issue with this completed run is not whether it trains, but that the narrow undistorted field of view makes the reconstructed scene too small.
+- User also ran `colmap image_undistorter` with `--blank_pixels 0.3 --max_image_size 1600` into `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistorter`; this wider-FOV undistorted dataset should be inspected before retraining.
 
 ## Latest Known Server Commands
 
@@ -157,8 +166,8 @@ python render.py \
 ## Next Assistant Actions
 
 1. Keep using `task_plan.md`, `findings.md`, and `progress.md` as the persistent working memory for this project.
-2. Help the user inspect and tune COLMAP/OpenCV fisheye undistortion so the new dataset keeps a useful field of view.
-3. Then train a full 30k-step comparison run on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`.
+2. Help the user inspect `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistorter` and compare its image size/FOV against the narrow original undistorted dataset.
+3. If the wider-FOV undistorted dataset looks good, train a full 30k-step comparison run on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistorter`.
 4. Render train views and inspect monitor/free-view geometry against the old `reception_hall_colmap` results.
 5. If the new fisheye dataset improves wall stability, promote it as the new baseline dataset.
 6. If quality is still poor, inspect video frame blur/overlap and fisheye undistortion artifacts.
