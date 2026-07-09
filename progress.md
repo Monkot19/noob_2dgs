@@ -109,6 +109,8 @@ The project is operational on AutoDL. The current focus is experiment management
 - Both runs show wall/blue-LED-region protrusions from oblique free views.
 - Updated diagnosis: the dominant limitation is now capture geometry plus difficult low-texture/emissive/reflective surfaces, not simply image count or undistorted field of view.
 - Next action is a deliberate reshoot with translated low/mid/high passes, left/right oblique views, and close detail passes.
+- Confirmed training semantics from source: one iteration uses one camera; cameras are sampled randomly without replacement until every training camera has been used, then the list is refilled.
+- Consequently, 3000 training images over 30000 iterations receive about 10 updates each. Recommended selecting roughly 600-1200 high-value keyframes for the next hall baseline rather than retaining every 10 Hz video frame.
 
 ## Latest Known Server Commands
 

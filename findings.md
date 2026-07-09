@@ -294,6 +294,18 @@ Capture-quality implications:
 - `--depth_ratio 0`: preferred for indoor halls and large depth variation.
 - `--depth_ratio 1`: better for bounded object-centric scenes.
 
+## Iterations, Views, and Dataset Size
+
+- In this repository, one optimization iteration samples exactly one training camera, renders it, computes the loss, and performs one optimizer step.
+- Sampling is random without replacement within each camera-list cycle: `viewpoint_stack` is refilled only after all training cameras have been popped once.
+- Therefore, with 3000 training images and 30000 iterations, each image is used about 10 times (exactly 10 complete cycles if all 3000 are training cameras and training starts from iteration 0).
+- This is analogous to about 10 epochs, although the code reports iterations rather than epochs.
+- Default densification runs only from iteration 500 to 15000. With 3000 images, geometry growth sees only about five complete dataset cycles before densification stops.
+- More video frames are not automatically better. Highly adjacent 10 Hz frames can be redundant, increase CPU memory and I/O, and reduce useful updates per distinct view under a fixed iteration budget.
+- The current code stores original image tensors on CPU and transfers the selected image to CUDA per iteration. Three thousand `1280x1024` float32 RGB images alone are roughly 44 GiB before additional overhead.
+- Prefer sharp, well-exposed keyframes with meaningful camera translation/rotation and broad scene coverage. For the reception hall, a deliberate set around 600-1200 distinct frames is a more practical starting point than retaining all 3000 video frames.
+- If 3000 genuinely distinct, high-quality training views are retained, 30000 iterations is a valid baseline but may be light for detail. A later 60000-iteration comparison should also extend schedules such as `position_lr_max_steps` and `densify_until_iter`, rather than changing only `--iterations`.
+
 ## Documentation Notes
 
 - `docs/2DGS_CHINESE_WORKFLOW.md` is the primary project guide.
