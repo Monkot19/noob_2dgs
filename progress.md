@@ -115,6 +115,8 @@ The project is operational on AutoDL. The current focus is experiment management
 - Decided to run COLMAP SfM once, preserve its default narrow undistortion output, and generate a separate full-size `scale1` output as the primary v2 training dataset.
 - COLMAP completed successfully for `reception_hall_by_geoscanS2_v2`: 298/298 images registered, 18541 points, mean track length 7.08, and mean reprojection error 0.8065 px.
 - The v2 sparse reconstruction is accepted for the next full-size `scale1` undistortion step.
+- User confirmed the v2 `scale1` export contains all 298 images at the expected full size and has a valid `sparse/0` model.
+- Next run is a controlled 30000-iteration baseline with `--depth_ratio 0`; no extra cleanup parameters will be added until the effect of the improved capture is measured.
 
 ## Latest Known Server Commands
 

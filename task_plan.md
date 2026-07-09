@@ -82,6 +82,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 - Evaluating the completed full-size fisheye `undistort_scale1` training against the narrow-FOV baseline.
 - Planning a new acquisition pass with stronger multi-height, multi-distance, and oblique-view coverage of the sign wall, white wall, sofa, ceiling, and LED strip.
 - Running COLMAP on the completed `reception_hall_by_geoscanS2_v2` reshoot, then producing both default narrow-FOV and full-size `scale1` undistorted outputs from the same sparse reconstruction.
+- Training the verified full-size v2 dataset for 30000 iterations with baseline settings so capture quality can be compared without parameter confounding.
 - Balancing:
   - reducing floating colored Gaussians,
   - keeping walls flat,
@@ -227,9 +228,9 @@ python render.py \
    git pull --ff-only
    ```
 2. Before reshooting, preserve the current narrow-FOV and full-size fisheye runs as baselines.
-3. Run fisheye COLMAP on `reception_hall_by_geoscanS2_v2` with known intrinsics and sequential matching.
-4. Analyze registration quality, then export a full-size `scale1` undistorted dataset for the primary training run; retain the default narrow-FOV export only as a comparison/fallback.
-5. Train the new capture and compare it against the narrow-FOV fisheye baseline `/root/autodl-tmp/outputs/reception_hall_geoscanS2_30k_v1` and the completed full-size run:
+3. Train `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_v2_undistort_scale1` for 30000 iterations using only `--depth_ratio 0` as the baseline override.
+4. Render and inspect both training-camera views and oblique free views.
+5. Compare the new capture against the narrow-FOV fisheye baseline `/root/autodl-tmp/outputs/reception_hall_geoscanS2_30k_v1` and the completed first full-size run:
    - blue sign text and edges,
    - fire cabinet text and box edges,
    - plant leaf boundaries,
