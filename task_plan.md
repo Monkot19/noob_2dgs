@@ -27,6 +27,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 - Main output root: `/root/autodl-tmp/outputs`
 - New capture dataset: `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`
 - New capture source: 58-second fisheye-camera video at 10 Hz, 598 extracted/registered frames.
+- Second deliberate capture dataset: `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_v2`
 
 ## Operating Convention
 
@@ -80,6 +81,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 - Tuning `train.py` parameters for `reception_hall_colmap`.
 - Evaluating the completed full-size fisheye `undistort_scale1` training against the narrow-FOV baseline.
 - Planning a new acquisition pass with stronger multi-height, multi-distance, and oblique-view coverage of the sign wall, white wall, sofa, ceiling, and LED strip.
+- Running COLMAP on the completed `reception_hall_by_geoscanS2_v2` reshoot, then producing both default narrow-FOV and full-size `scale1` undistorted outputs from the same sparse reconstruction.
 - Balancing:
   - reducing floating colored Gaussians,
   - keeping walls flat,
@@ -225,9 +227,9 @@ python render.py \
    git pull --ff-only
    ```
 2. Before reshooting, preserve the current narrow-FOV and full-size fisheye runs as baselines.
-3. Capture a new sequence using translated passes at low/mid/high camera heights, plus left/right oblique approaches and close detail passes; avoid relying on in-place pan/tilt.
-4. Keep exposure, white balance, focus, and motion blur as stable as the camera permits, and avoid people moving through the scene.
-5. Convert/train the new capture and compare it against the narrow-FOV fisheye baseline `/root/autodl-tmp/outputs/reception_hall_geoscanS2_30k_v1` and the completed full-size run:
+3. Run fisheye COLMAP on `reception_hall_by_geoscanS2_v2` with known intrinsics and sequential matching.
+4. Analyze registration quality, then export a full-size `scale1` undistorted dataset for the primary training run; retain the default narrow-FOV export only as a comparison/fallback.
+5. Train the new capture and compare it against the narrow-FOV fisheye baseline `/root/autodl-tmp/outputs/reception_hall_geoscanS2_30k_v1` and the completed full-size run:
    - blue sign text and edges,
    - fire cabinet text and box edges,
    - plant leaf boundaries,

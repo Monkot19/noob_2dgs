@@ -94,6 +94,9 @@ fx,fy,cx,cy,k1,k2,k3,k4
 ```
 
 - Video frame sequences should prefer sequential matching over exhaustive matching to reduce compute and exploit temporal continuity.
+- The second deliberate reshoot is stored at `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_v2/input`.
+- COLMAP SfM only needs to run once on the original fisheye frames. The resulting distorted sparse model can be passed to `image_undistorter` multiple times to create both narrow-FOV and full-size `scale1` pinhole datasets.
+- For the v2 primary 2DGS run, prefer the full-size `scale1` export because the new capture was designed to add geometric coverage across the hall. Keep the default narrow export for controlled comparison rather than making it the main dataset.
 - `convert.py` now supports:
   - `--camera_params`
   - `--matcher exhaustive|sequential`

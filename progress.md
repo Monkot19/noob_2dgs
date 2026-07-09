@@ -111,6 +111,8 @@ The project is operational on AutoDL. The current focus is experiment management
 - Next action is a deliberate reshoot with translated low/mid/high passes, left/right oblique views, and close detail passes.
 - Confirmed training semantics from source: one iteration uses one camera; cameras are sampled randomly without replacement until every training camera has been used, then the list is refilled.
 - Consequently, 3000 training images over 30000 iterations receive about 10 updates each. Recommended selecting roughly 600-1200 high-value keyframes for the next hall baseline rather than retaining every 10 Hz video frame.
+- User completed a second fisheye capture using translated multi-height and oblique passes. New input path: `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_v2/input`.
+- Decided to run COLMAP SfM once, preserve its default narrow undistortion output, and generate a separate full-size `scale1` output as the primary v2 training dataset.
 
 ## Latest Known Server Commands
 
