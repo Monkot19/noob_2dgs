@@ -1,6 +1,6 @@
 # Task Plan
 
-Last updated: 2026-07-07
+Last updated: 2026-07-09
 
 ## Goal
 
@@ -78,7 +78,8 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 ## In Progress
 
 - Tuning `train.py` parameters for `reception_hall_colmap`.
-- Evaluating the new full-size fisheye undistortion dataset before/through training, because the first completed fisheye 30k run used very narrow COLMAP undistorted images and therefore reconstructs too small a scene.
+- Evaluating the completed full-size fisheye `undistort_scale1` training against the narrow-FOV baseline.
+- Planning a new acquisition pass with stronger multi-height, multi-distance, and oblique-view coverage of the sign wall, white wall, sofa, ceiling, and LED strip.
 - Balancing:
   - reducing floating colored Gaussians,
   - keeping walls flat,
@@ -208,6 +209,9 @@ python render.py \
 - Direct Gaussian point cloud visualization may look messy even when novel-view rendering is acceptable.
 - Strong geometry regularization can convert high-frequency wall text into artificial protrusions.
 - Lower regularization preserves texture but may reintroduce floaters.
+- Wide fisheye coverage alone does not guarantee geometry: mostly forward-facing/level footage can leave large planar regions weakly constrained despite many registered frames.
+- White walls, glossy floors, black furniture, reflective glass, and emissive LED strips violate or weaken photometric consistency and can produce layered/protruding Gaussians.
+- Pure camera rotation or tilt without camera-center translation adds little triangulation baseline.
 - COLMAP quality is acceptable but sparse point count is not very high for an indoor scene; weak/repetitive texture may still hurt geometry.
 - Current AutoDL system COLMAP may be `without CUDA` unless a custom COLMAP build is installed.
 - `ffmpeg` may be missing on AutoDL, blocking MP4 creation from `render.py --render_path`.
@@ -220,10 +224,10 @@ python render.py \
    cd /root/autodl-tmp/noob_2dgs
    git pull --ff-only
    ```
-2. Train a new full 30k-step comparison run on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistort_scale1`, whose `images` are `(1280, 1024)` instead of `(256, 204)`.
-3. Render the new run and compare scene extent/detail/geometry against the narrow-FOV fisheye baseline `/root/autodl-tmp/outputs/reception_hall_geoscanS2_30k_v1`.
-4. Render train views and inspect monitor/free-view geometry.
-5. Compare the new run against `reception_hall_balanced_v1`:
+2. Before reshooting, preserve the current narrow-FOV and full-size fisheye runs as baselines.
+3. Capture a new sequence using translated passes at low/mid/high camera heights, plus left/right oblique approaches and close detail passes; avoid relying on in-place pan/tilt.
+4. Keep exposure, white balance, focus, and motion blur as stable as the camera permits, and avoid people moving through the scene.
+5. Convert/train the new capture and compare it against the narrow-FOV fisheye baseline `/root/autodl-tmp/outputs/reception_hall_geoscanS2_30k_v1` and the completed full-size run:
    - blue sign text and edges,
    - fire cabinet text and box edges,
    - plant leaf boundaries,

@@ -180,6 +180,16 @@ Interpretation:
 
 ## Training Observations
 
+### Full-size fisheye run visual comparison (2026-07-09)
+
+- User completed training on the `(1280, 1024)` `reception_hall_by_geoscanS2_undistort_scale1` dataset and inspected it in the free-view monitor.
+- Compared with the narrow-FOV fisheye run, the full-size run gives more continuous sofa and LED-strip structure, but the wall-sign text is less sharp.
+- Both runs produce protruding/layered geometry around the large blue LED structure to the right of the sign and on the white wall.
+- This repeatable location-specific failure points more strongly to weak capture geometry and difficult surface appearance than to output FOV alone.
+- The capture was mainly level and forward-facing. More frames and wider FOV improved coverage, but did not create enough independent viewing rays for planar geometry.
+- For the next capture, camera-center translation is essential. Use several paths at different heights and distances, with left/right oblique views that cross the same wall regions. Merely standing in place and pitching the camera up/down is not enough.
+- LED strips, plain white walls, glossy floors, and black/reflective furniture are intrinsically difficult: saturation, view-dependent reflections, and low texture weaken COLMAP/2DGS photometric and geometric constraints.
+
 Default training:
 
 ```bash

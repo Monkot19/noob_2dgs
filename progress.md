@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-07-07
+Last updated: 2026-07-09
 
 ## Current Status
 
@@ -101,6 +101,14 @@ The project is operational on AutoDL. The current focus is experiment management
   - `undistort_scale1/images`: `(1280, 1024)`
 - User visually checked images and said the result appears successful. This dataset is now the next candidate for a full 30k 2DGS comparison run.
 - First training attempt on `reception_hall_by_geoscanS2_undistort_scale1` failed because 2DGS could not find `sparse/0/images.bin` or `sparse/0/images.txt`. Likely cause: COLMAP `image_undistorter` wrote the reconstruction files under `sparse/` directly instead of `sparse/0/`, or did not write the expected model files into the new output path. Next diagnostic is to list the dataset tree and copy/move `cameras.*`, `images.*`, and `points3D.*` into `sparse/0/` if they exist.
+
+### 2026-07-09
+
+- User resolved the dataset structure issue and completed the full-size fisheye training run.
+- Free-view comparison shows a tradeoff: the narrow-FOV run keeps the sign text sharper but has poorer sofa/blue-structure continuity; the full-size run improves scene continuity but softens text.
+- Both runs show wall/blue-LED-region protrusions from oblique free views.
+- Updated diagnosis: the dominant limitation is now capture geometry plus difficult low-texture/emissive/reflective surfaces, not simply image count or undistorted field of view.
+- Next action is a deliberate reshoot with translated low/mid/high passes, left/right oblique views, and close detail passes.
 
 ## Latest Known Server Commands
 
