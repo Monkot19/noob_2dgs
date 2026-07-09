@@ -117,6 +117,8 @@ The project is operational on AutoDL. The current focus is experiment management
 - The v2 sparse reconstruction is accepted for the next full-size `scale1` undistortion step.
 - User confirmed the v2 `scale1` export contains all 298 images at the expected full size and has a valid `sparse/0` model.
 - Next run is a controlled 30000-iteration baseline with `--depth_ratio 0`; no extra cleanup parameters will be added until the effect of the improved capture is measured.
+- Full-size v2 training succeeded visually: wall/LED protrusions and layering disappeared, sofa geometry stabilized, and free-view streaking was greatly reduced. Sign text remains somewhat softer than desired.
+- User chose to run the default narrow-FOV v2 dataset as a controlled 30k comparison with identical training settings.
 
 ## Latest Known Server Commands
 

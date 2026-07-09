@@ -213,6 +213,14 @@ Interpretation:
 - For the next capture, camera-center translation is essential. Use several paths at different heights and distances, with left/right oblique views that cross the same wall regions. Merely standing in place and pitching the camera up/down is not enough.
 - LED strips, plain white walls, glossy floors, and black/reflective furniture are intrinsically difficult: saturation, view-dependent reflections, and low texture weaken COLMAP/2DGS photometric and geometric constraints.
 
+### Second capture full-size result (2026-07-09)
+
+- The deliberate v2 capture substantially improved geometry: the blue LED structure no longer protrudes, the white wall remains single-layered in oblique views, the sofa is stable, and free-view streaking is greatly reduced.
+- Sign text is generally readable but not as sharp as desired.
+- A narrow-FOV v2 run is justified as a controlled A/B test because it uses the same 298 poses and capture geometry as the successful full-size run.
+- Evaluate text using matching training-view renders and equal-scale crops, not only monitor screenshots; monitor free-view interpolation and viewport scaling can confound sharpness.
+- The narrow run is expected to trade scene extent for central detail. If it succeeds, the longer-term target is to preserve the full-size model's geometry while adding high-detail local observations, rather than simply abandoning wide coverage.
+
 Default training:
 
 ```bash
