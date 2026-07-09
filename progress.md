@@ -113,6 +113,8 @@ The project is operational on AutoDL. The current focus is experiment management
 - Consequently, 3000 training images over 30000 iterations receive about 10 updates each. Recommended selecting roughly 600-1200 high-value keyframes for the next hall baseline rather than retaining every 10 Hz video frame.
 - User completed a second fisheye capture using translated multi-height and oblique passes. New input path: `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_v2/input`.
 - Decided to run COLMAP SfM once, preserve its default narrow undistortion output, and generate a separate full-size `scale1` output as the primary v2 training dataset.
+- COLMAP completed successfully for `reception_hall_by_geoscanS2_v2`: 298/298 images registered, 18541 points, mean track length 7.08, and mean reprojection error 0.8065 px.
+- The v2 sparse reconstruction is accepted for the next full-size `scale1` undistortion step.
 
 ## Latest Known Server Commands
 

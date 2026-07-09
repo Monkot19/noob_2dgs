@@ -122,6 +122,26 @@ Interpretation:
 - Reprojection error is slightly above 1 px and slightly worse than the old ~0.96 px, but still plausible for fisheye/video data after undistortion.
 - This dataset is a strong candidate to replace the old 129-image dataset as the next 2DGS baseline.
 
+Second deliberate capture `reception_hall_by_geoscanS2_v2` COLMAP result:
+
+```text
+Cameras: 1
+Images: 298
+Registered images: 298
+Points: 18541
+Observations: 131274
+Mean track length: 7.080201
+Mean observations per image: 440.516779
+Mean reprojection error: 0.806505px
+```
+
+Interpretation:
+
+- Full `298/298` registration and `0.8065 px` reprojection error indicate a healthy reconstruction.
+- The reprojection error is better than both the first fisheye capture (`1.064 px`) and the old 129-image dataset (`0.959 px`).
+- Track length is lower than the first 598-frame fisheye run, but that run contained more highly redundant adjacent video frames. The v2 value is compatible with wider-baseline, less-redundant acquisition and is not by itself a regression.
+- Proceed with a full-size `scale1` undistortion export and visual verification before training.
+
 Fisheye undistortion issue:
 
 - User compared fisheye input frames with COLMAP undistorted output images.
