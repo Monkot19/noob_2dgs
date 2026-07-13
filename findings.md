@@ -342,6 +342,28 @@ Capture-quality implications:
 - `docs/2DGS_CHINESE_WORKFLOW.md` is the primary project guide.
 - PowerShell may display Chinese Markdown as mojibake, but the file content is UTF-8 and renders correctly in normal Markdown viewers/GitHub.
 
+## Output Management
+
+- Local output archive root is `D:\workspace\2DGS_output`.
+- The current archive contains eight run directories:
+  - `reception_hall_v0`
+  - `reception_hall_balanced_v1`
+  - `reception_hall_clean_v1`
+  - `reception_hall_clean_v2`
+  - `reception_hall_geoscanS2_30k_v1`
+  - `reception_hall_geoscanS2_scale1_30k_v1`
+  - `reception_hall_geoscanS2_v2_scale1_30k_v1`
+  - `reception_hall_geoscanS2_v2_narrow_30k_v1`
+- `scripts/output_inventory.py` scans a 2DGS output root and generates:
+  - `RUN_INDEX.md`
+  - `RUN_INDEX.csv`
+- The generated index extracts dataset path from `cfg_args`, final train L1/PSNR from `train.log`, final point counts from logs or PLY headers, rough folder size, and missing-log notes.
+- Manual visual conclusions should be kept in `D:\workspace\2DGS_output\RUN_NOTES.md`, because `RUN_INDEX.md` is meant to be regenerated.
+- Existing archive observations:
+  - `reception_hall_geoscanS2_v2_scale1_30k_v1` is the current best structural baseline.
+  - `reception_hall_geoscanS2_v2_narrow_30k_v1` is a text-detail A/B candidate but currently lacks `train.log` and `render.log` in the local archive.
+  - Several older runs have empty or missing `render.log`; this does not invalidate their point clouds, but it weakens reproducibility.
+
 ## Context Migration
 
 - If the conversation context is exhausted, start a new thread with:

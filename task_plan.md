@@ -25,6 +25,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 - Server repository path: `/root/autodl-tmp/noob_2dgs`
 - Main dataset: `/root/autodl-tmp/datasets/reception_hall_colmap`
 - Main output root: `/root/autodl-tmp/outputs`
+- Local output archive/index root: `D:\workspace\2DGS_output`
 - New capture dataset: `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2`
 - New capture source: 58-second fisheye-camera video at 10 Hz, 598 extracted/registered frames.
 - Second deliberate capture dataset: `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_v2`
@@ -75,6 +76,12 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
   - `findings.md`
   - `progress.md`
 - Loaded the project-local `planning-with-files` skill and confirmed existing planning files are the active project memory.
+- Added output management support:
+  - `docs/OUTPUT_MANAGEMENT.md`
+  - `scripts/output_inventory.py`
+  - Generated `D:\workspace\2DGS_output\RUN_INDEX.md`
+  - Generated `D:\workspace\2DGS_output\RUN_INDEX.csv`
+  - Created `D:\workspace\2DGS_output\RUN_NOTES.md`
 
 ## In Progress
 
@@ -84,6 +91,7 @@ The immediate technical goal is to obtain a cleaner reconstruction for `receptio
 - Running COLMAP on the completed `reception_hall_by_geoscanS2_v2` reshoot, then producing both default narrow-FOV and full-size `scale1` undistorted outputs from the same sparse reconstruction.
 - Training the verified full-size v2 dataset for 30000 iterations with baseline settings so capture quality can be compared without parameter confounding.
 - Running a controlled narrow-FOV v2 training using the same 298 poses and optimization settings to measure the text-detail versus scene-coverage tradeoff.
+- Organizing local experiment outputs so future runs have a stable index, naming convention, and qualitative notes.
 - Balancing:
   - reducing floating colored Gaussians,
   - keeping walls flat,
@@ -208,6 +216,31 @@ python render.py \
   --num_cluster 20
 ```
 
+## Output Management
+
+Use `D:\workspace\2DGS_output` as the local archive for important 2DGS runs copied from AutoDL.
+
+Refresh the output index after adding or changing runs:
+
+```powershell
+python D:\workspace\2DGS\scripts\output_inventory.py D:\workspace\2DGS_output
+```
+
+Generated index files:
+
+- `D:\workspace\2DGS_output\RUN_INDEX.md`
+- `D:\workspace\2DGS_output\RUN_INDEX.csv`
+
+Human visual conclusions belong in:
+
+- `D:\workspace\2DGS_output\RUN_NOTES.md`
+
+New run names should follow:
+
+```text
+<scene>_<capture-or-dataset>_<fov-or-preprocess>_<purpose>_<iterations>_<version>
+```
+
 ## Risks
 
 - Direct Gaussian point cloud visualization may look messy even when novel-view rendering is acceptable.
@@ -239,4 +272,5 @@ python render.py \
    - amount of floaters in monitor/free-view inspection.
 6. If the new dataset improves wall stability, promote it as the new baseline dataset.
 7. Record each experiment result in `progress.md`.
-8. If a code-level improvement becomes necessary, implement locally, commit, push, then update the server with `git pull --ff-only`.
+8. Refresh `D:\workspace\2DGS_output\RUN_INDEX.md` after syncing new outputs locally and write visual conclusions to `RUN_NOTES.md`.
+9. If a code-level improvement becomes necessary, implement locally, commit, push, then update the server with `git pull --ff-only`.

@@ -1,10 +1,10 @@
 # Progress
 
-Last updated: 2026-07-09
+Last updated: 2026-07-13
 
 ## Current Status
 
-The project is operational on AutoDL. The current focus is experiment management and reconstruction-quality tuning for `reception_hall_colmap`.
+The project is operational on AutoDL. The current focus is output management plus controlled comparison of the `reception_hall_geoscanS2_v2` full-size and narrow-FOV runs.
 
 ## Timeline
 
@@ -120,6 +120,20 @@ The project is operational on AutoDL. The current focus is experiment management
 - Full-size v2 training succeeded visually: wall/LED protrusions and layering disappeared, sofa geometry stabilized, and free-view streaking was greatly reduced. Sign text remains somewhat softer than desired.
 - User chose to run the default narrow-FOV v2 dataset as a controlled 30k comparison with identical training settings.
 
+### 2026-07-13
+
+- Inspected local output archive `D:\workspace\2DGS_output`.
+- Found eight current run directories covering old `reception_hall_colmap`, first fisheye, first fisheye `scale1`, second fisheye `scale1`, and second fisheye narrow-FOV experiments.
+- Added `scripts/output_inventory.py` to generate a reproducible Markdown/CSV inventory from output folders.
+- Added `docs/OUTPUT_MANAGEMENT.md` with naming rules, retention guidance, index-refresh command, and visual-notes workflow.
+- Generated:
+  - `D:\workspace\2DGS_output\RUN_INDEX.md`
+  - `D:\workspace\2DGS_output\RUN_INDEX.csv`
+- Created `D:\workspace\2DGS_output\RUN_NOTES.md` and filled initial qualitative conclusions for existing runs.
+- Current index highlights:
+  - `reception_hall_geoscanS2_v2_scale1_30k_v1`: 30000 iter, L1 `0.01149150300770998`, PSNR `34.72181777954102`, 363937 final points, about 2.043 GB.
+  - `reception_hall_geoscanS2_v2_narrow_30k_v1`: final PLY has 335020 vertices, but local archive lacks `train.log` and `render.log`, so final L1/PSNR are unavailable from the index.
+
 ## Latest Known Server Commands
 
 Check repository state on AutoDL:
@@ -195,9 +209,8 @@ python render.py \
 ## Next Assistant Actions
 
 1. Keep using `task_plan.md`, `findings.md`, and `progress.md` as the persistent working memory for this project.
-2. Have the user run a full 30k-step comparison training on `/root/autodl-tmp/datasets/reception_hall_by_geoscanS2_undistort_scale1`.
-3. Render the `undistort_scale1` run with `--skip_mesh`, then compare scene extent, wall stability, and detail retention against the narrow-FOV fisheye baseline.
-4. Render train views and inspect monitor/free-view geometry against the old `reception_hall_colmap` results.
-5. If the new fisheye dataset improves wall stability, promote it as the new baseline dataset.
-6. If quality is still poor, inspect video frame blur/overlap and fisheye undistortion artifacts.
-7. After every new server experiment or code change, update `progress.md`; if the result changes what we believe, also update `findings.md` and `task_plan.md`.
+2. Use `scripts/output_inventory.py` whenever new AutoDL outputs are copied into `D:\workspace\2DGS_output`.
+3. Ask the user to preserve or copy missing `train.log`/`render.log` for `reception_hall_geoscanS2_v2_narrow_30k_v1` if available on AutoDL.
+4. Compare `reception_hall_geoscanS2_v2_scale1_30k_v1` and `reception_hall_geoscanS2_v2_narrow_30k_v1` with matched train-view crops and monitor/free-view screenshots.
+5. Record the A/B visual verdict in `D:\workspace\2DGS_output\RUN_NOTES.md`, then summarize it in `progress.md` and `findings.md`.
+6. If a code-level improvement becomes necessary, implement locally, commit, push, then update the server with `git pull --ff-only`.
